@@ -10,7 +10,8 @@ renderdoc.cap
 */CMakeFiles/
 */cmake_install.cmake
 */Makefile
-
+VulkanEngine/VulkanEngine
+VulkanEngine/media/screenshots
 # Xcode
 ## User settings
 */xcuserdata/
