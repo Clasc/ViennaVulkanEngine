@@ -198,7 +198,7 @@ namespace ve
 
 				VEEntity *e2;
 				VECHECKPOINTER(e2 = getSceneManagerPointer()->createEntity("The Cube" + std::to_string(i), pMesh, pMat, pNode));
-				registerEventListener(new RotatorListener("RotatorListener2" + std::to_string(i), e2, v(e), glm::vec3(r(e), r(e), r(e))), {veEvent::VE_EVENT_FRAME_STARTED, veEvent::VE_EVENT_DELETE_NODE});
+				//registerEventListener(new RotatorListener("RotatorListener2" + std::to_string(i), e2, v(e), glm::vec3(r(e), r(e), r(e))), {veEvent::VE_EVENT_FRAME_STARTED, veEvent::VE_EVENT_DELETE_NODE});
 				//registerEventListener( new BlinkListener("BlinkListener" + std::to_string(i), e2, dur(e) ), { veEvent::VE_EVENT_FRAME_STARTED, veEvent::VE_EVENT_DELETE_NODE });
 			}
 		}
@@ -274,7 +274,7 @@ namespace ve
 			e1->multiplyTransform(glm::translate(glm::mat4(1.0f), glm::vec3(10.0f, 5.0f, 10.0f)));
 			pScene->addChild(e1);
 
-			createCubes(1000, pScene);
+			createCubes(10, pScene);
 			//createLights(10, pScene );
 			//VESceneNode *pSponza = m_pSceneManager->loadModel("Sponza", "models/sponza", "sponza.dae", aiProcess_FlipWindingOrder);
 			//pSponza->setTransform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 0.1f)));
