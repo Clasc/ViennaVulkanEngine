@@ -1,53 +1,35 @@
 cmake_minimum_required(VERSION 3.10)
-project(vienna_vulkan_engine_cmake)
+project(vienna_vulkan_engine)
+set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_CXX_STANDARD 14)
+include_directories(
+        ../external/stb
+        ../external/threadpool
+        ../external/irrKlang/include
+        ../external/nuklear
 
-add_executable(game
-        main.cpp
-        VEEngine.h
-        VEEngine.cpp
-        VEEntity.h
-        VEEntity.cpp
-        VEEventListenerGLFW.h
-        VEEventListenerGLFW.cpp
-        VEEventListener.h
-        VEEventListener.cpp
-        VEInclude.h
-        VENamedClass.h
-        VENamedClass.cpp
-        VERenderer.h
-        VERenderer.cpp
-        VERendererForward.h
-        VERendererForward.cpp
-        VESceneManager.h
-        VESceneManager.cpp
-        VESubrender.h
-        VESubrender.cpp
-        VESubrenderFW_C1.h
-        VESubrenderFW_C1.cpp
-        VESubrenderFW_Cubemap.h
-        VESubrenderFW_Cubemap.cpp
-        VESubrenderFW_D.h
-        VESubrenderFW_D.cpp
-        VESubrenderFW_DN.h
-        VESubrenderFW_DN.cpp
-        VESubrenderFW_Shadow.h
-        VESubrenderFW_Shadow.cpp
-        VEWindow.h
-        VEWindow.cpp
-        VEWindowGLFW.h
-        VEWindowGLFW.cpp
-        VHBuffer.cpp
-        VHCommand.cpp
-        VHDebug.cpp
-        VHDevice.cpp
-        VHFile.cpp
-        VHHelper.h
-        VHMemory.cpp
-        VHRender.cpp
-        VHSwapchain.cpp
-        vk_mem_alloc.h
+        #brew headers
+        /usr/local/include      
 )
 
-target_link_libraries(game vulkan glfw assimp pthread)
+
+link_directories(
+        #brew lib
+        /usr/local/lib
+)
+
+# add the executable
+file(GLOB SOURCE_FILES CONFIGURE_DEPENDS  "*.h" "*.cpp")
+
+add_executable(
+        VulkanEngine
+        ${SOURCE_FILES}
+        ../external/threadpool/ThreadPool.h
+        ../external/threadpool/ThreadPool.cpp
+)
+
+target_link_libraries(VulkanEngine vulkan glfw assimp)
+
+
+
+set(CMAKE_CXX_STANDARD 14)
