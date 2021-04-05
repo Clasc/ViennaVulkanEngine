@@ -3,6 +3,7 @@
 
 #include "../VEInclude.h"
 #include "Levels/LevelManager.h"
+#include "EventListeners/PlayerController.h"
 
 using namespace ve;
 
@@ -29,7 +30,8 @@ namespace game
         ///Register an event listener to interact with the user
         virtual void registerEventListeners()
         {
-            VEEngine::registerEventListeners();
+            //VEEngine::registerEventListeners();
+            registerEventListener(new PlayerController(), {veEvent::VE_EVENT_KEYBOARD});
         };
 
         void loadLevel(uint32_t numLevel = 1)
