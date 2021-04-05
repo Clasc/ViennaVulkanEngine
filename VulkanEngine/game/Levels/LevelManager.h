@@ -14,6 +14,7 @@ namespace game
         ~LevelManager();
 
         VESceneNode *getLevelScene(const int &level);
+        void setBird(VESceneNode *pScene);
     };
 
     LevelManager::LevelManager()
@@ -46,12 +47,18 @@ namespace game
             pE->m_castsShadow = false;
         }
 
-        VESceneNode *e1 = getSceneManagerPointer()->loadModel("Cube", "media/models/test/crate0", "cube.obj");
-        e1->multiplyTransform(glm::scale(glm::mat4(1.0f), glm::vec3(10.0f, 10.0f, 10.0f)));
-        e1->multiplyTransform(glm::translate(glm::mat4(1.0f), glm::vec3(10.0f, 5.0f, 10.0f)));
-        pScene->addChild(e1);
+        setBird(pScene);
 
         return pScene;
+    }
+
+    void LevelManager::setBird(VESceneNode *pScene)
+    {
+        VESceneNode *bird = getSceneManagerPointer()->loadModel("Bird", "game/Assets/Models/Bird", "bird.obj");
+        bird->multiplyTransform(glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 50.0f, 50.0f)));
+        bird->multiplyTransform(glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+        bird->multiplyTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 6.0f, 15.0f)));
+        pScene->addChild(bird);
     }
 }
 #endif
