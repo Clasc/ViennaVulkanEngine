@@ -12,7 +12,7 @@ namespace game
     class PlayerController : public VEEventListener
     {
     private:
-        inline static const float m_movement_speed = 20.0f;
+        inline static const float m_movement_speed = 1.0f;
         inline static const std::string NAME = "PlayerController";
         ///create some default constants for the actions
         inline static const glm::vec4 TOTAL_TRANSLATION = glm::vec4(0.0, 0.0, 0.0, 1.0); //total translation
