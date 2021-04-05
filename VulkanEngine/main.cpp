@@ -17,8 +17,8 @@ int main()
 	debug = true;
 #endif
 
-	ve::MyVulkanEngine mve(false); //enable or disable debugging (=callback, validation layers)
-	game::GameEngine gameEngine(false);
+	//ve::MyVulkanEngine mve(false); //enable or disable debugging (=callback, validation layers)
+	game::GameEngine gameEngine = game::GameEngine(false);
 	gameEngine.initEngine();
 	gameEngine.loadLevel(1);
 	gameEngine.run();

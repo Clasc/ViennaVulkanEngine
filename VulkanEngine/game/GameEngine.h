@@ -34,6 +34,7 @@ namespace game
 
         void loadLevel(uint32_t numLevel = 1)
         {
+            VEEngine::loadLevel(numLevel);
             auto pScene = m_levelManager.getLevelScene(numLevel);
         }
     };
