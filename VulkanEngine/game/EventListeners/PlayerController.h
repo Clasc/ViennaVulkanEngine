@@ -12,7 +12,7 @@ namespace game
     class PlayerController : public VEEventListener
     {
     private:
-        inline static const float m_movement_speed = 1.0f;
+        inline static const float m_movement_speed = 5.0f;
         inline static const std::string NAME = "PlayerController";
         ///create some default constants for the actions
         inline static const glm::vec4 TOTAL_TRANSLATION = glm::vec4(0.0, 0.0, 0.0, 1.0); //total translation
@@ -45,22 +45,27 @@ namespace game
         float angle = 0.0;
 
         if (event.idata3 == GLFW_RELEASE)
+        {
             return false;
+        }
 
-        auto playerEntity = getSceneManagerPointer()->getSceneNode(EntityName::Player);
+        auto playerEntity = getSceneManagerPointer()->getSceneNode(EntityName::PlayerEntity);
+        auto player = getSceneManagerPointer()->getSceneNode(EntityName::Player);
+        auto playerModel = getSceneManagerPointer()->getSceneNode(EntityName::PlayerModel);
+
         switch (event.idata1)
         {
         case GLFW_KEY_A:
-            translate = playerEntity->getTransform() * glm::vec4(-1.0, 0.0, 0.0, 1.0); //left
+            translate = player->getTransform() * glm::vec4(-1.0, 0.0, 0.0, 1.0); //left
             break;
         case GLFW_KEY_D:
-            translate = playerEntity->getTransform() * glm::vec4(1.0, 0.0, 0.0, 1.0); //right
+            translate = player->getTransform() * glm::vec4(1.0, 0.0, 0.0, 1.0); //right
             break;
         case GLFW_KEY_W:
-            translate = playerEntity->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0); //forward
+            translate = player->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0); //forward
             break;
         case GLFW_KEY_S:
-            translate = playerEntity->getTransform() * glm::vec4(0.0, 0.0, -1.0, 1.0); //back
+            translate = player->getTransform() * glm::vec4(0.0, 0.0, -1.0, 1.0); //back
             break;
         case GLFW_KEY_Q:
             translate = glm::vec4(0.0, -1.0, 0.0, 1.0); //down
