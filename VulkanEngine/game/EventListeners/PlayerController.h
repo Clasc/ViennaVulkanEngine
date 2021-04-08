@@ -12,16 +12,15 @@ namespace game
     class PlayerController : public VEEventListener
     {
     private:
-        inline static const float m_movement_speed = 5.0f;
+        inline static const float m_movement_speed = 40.0f;
         inline static const std::string NAME = "PlayerController";
         ///create some default constants for the actions
-        inline static const glm::vec4 TOTAL_TRANSLATION = glm::vec4(0.0, 0.0, 0.0, 1.0); //total translation
-        inline static const glm::vec4 TOTAL_ROTATION = glm::vec4(1.0);                   //total rotation around the axes, is 4d !
 
     public:
         PlayerController();
         ~PlayerController();
         virtual bool onKeyboard(veEvent event);
+        virtual void onFrameStarted(veEvent event);
     };
 
     PlayerController::PlayerController() : VEEventListener(NAME)
@@ -40,8 +39,9 @@ namespace game
             return true;
         }
 
-        glm::vec4 translate = TOTAL_TRANSLATION;
-        glm::vec4 rot4 = TOTAL_ROTATION; //total rotation around the axes, is 4d !
+        glm::vec4 translate = glm::vec4(0.0, 0.0, 0.0, 1.0); //total translation;
+        glm::vec4 rot4 = glm::vec4(1.0);
+
         float angle = 0.0;
 
         if (event.idata3 == GLFW_RELEASE)
@@ -55,17 +55,17 @@ namespace game
 
         switch (event.idata1)
         {
+        case GLFW_KEY_W:
+            translate = player->getTransform() * glm::vec4(0.0, 0.0, 0.5, 1.0); //left
+            break;
         case GLFW_KEY_A:
             translate = player->getTransform() * glm::vec4(-1.0, 0.0, 0.0, 1.0); //left
             break;
         case GLFW_KEY_D:
             translate = player->getTransform() * glm::vec4(1.0, 0.0, 0.0, 1.0); //right
             break;
-        case GLFW_KEY_W:
-            translate = player->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0); //forward
-            break;
         case GLFW_KEY_S:
-            translate = player->getTransform() * glm::vec4(0.0, 0.0, -1.0, 1.0); //back
+            translate = player->getTransform() * glm::vec4(0.0, 0.0, -0.5, 1.0); //back
             break;
         case GLFW_KEY_Q:
             translate = glm::vec4(0.0, -1.0, 0.0, 1.0); //down
@@ -104,6 +104,16 @@ namespace game
         player->multiplyTransform(rotate);
 
         return true;
+    }
+
+    void PlayerController::onFrameStarted(veEvent event)
+    {
+        glm::vec4 translate = glm::vec4(0.0, 0.0, 0.0, 1.0); //total translation;
+        auto playerEntity = getSceneManagerPointer()->getSceneNode(EntityName::PlayerEntity);
+        auto player = getSceneManagerPointer()->getSceneNode(EntityName::Player);
+        translate = player->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0);
+        glm::vec3 trans = m_movement_speed * glm::vec3(translate.x, translate.y, translate.z);
+        playerEntity->multiplyTransform(glm::translate(glm::mat4(1.0f), (float)event.dt * trans));
     }
 }
 #endif

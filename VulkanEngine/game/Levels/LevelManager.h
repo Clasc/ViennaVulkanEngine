@@ -62,7 +62,7 @@ namespace game
 
         model->multiplyTransform(glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 50.0f, 50.0f)));
         model->multiplyTransform(glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
-        model->multiplyTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -4.0f, 15.0f)));
+        model->multiplyTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -4.0f, 12.0f)));
         player->addChild(model);
     }
 }

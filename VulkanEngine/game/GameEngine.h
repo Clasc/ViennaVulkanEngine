@@ -31,7 +31,7 @@ namespace game
         virtual void registerEventListeners()
         {
             //VEEngine::registerEventListeners();
-            registerEventListener(new PlayerController(), {veEvent::VE_EVENT_KEYBOARD});
+            registerEventListener(new PlayerController(), {veEvent::VE_EVENT_KEYBOARD, veEvent::VE_EVENT_FRAME_STARTED});
         };
 
         void loadLevel(uint32_t numLevel = 1)
@@ -62,11 +62,11 @@ namespace game
             light1->m_col_diffuse = glm::vec4(0.9f, 0.9f, 0.9f, 1.0f);
             light1->m_col_specular = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
 
-            VELight *light3 = (VEPointLight *)getSceneManagerPointer()->createLight("StandardPointLight", VELight::VE_LIGHT_TYPE_POINT, camera); //new VEPointLight("StandardPointLight");		//sphere is attached to this!
-            light3->m_col_diffuse = glm::vec4(0.99f, 0.99f, 0.6f, 1.0f);
-            light3->m_col_specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-            light3->m_param[0] = 200.0f;
-            light3->multiplyTransform(glm::translate(glm::vec3(0.0f, 0.0f, 15.0f)));
+            // VELight *light3 = (VEPointLight *)getSceneManagerPointer()->createLight("StandardPointLight", VELight::VE_LIGHT_TYPE_POINT, camera); //new VEPointLight("StandardPointLight");		//sphere is attached to this!
+            // light3->m_col_diffuse = glm::vec4(0.99f, 0.99f, 0.6f, 1.0f);
+            // light3->m_col_specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            // light3->m_param[0] = 200.0f;
+            // light3->multiplyTransform(glm::translate(glm::vec3(0.0f, 0.0f, 15.0f)));
 
             VELight *light2 = (VESpotLight *)getSceneManagerPointer()->createLight("StandardSpotLight", VELight::VE_LIGHT_TYPE_SPOT, camera);
             light2->m_col_diffuse = glm::vec4(0.99f, 0.6f, 0.6f, 1.0f);
