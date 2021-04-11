@@ -18,6 +18,7 @@ namespace game
         VESceneNode *getLevelScene(const int &level);
         void loadPlayer();
         void loadTree(VESceneNode *pScene);
+        void loadFruit(VESceneNode *pScene);
     };
 
     LevelManager::LevelManager()
@@ -52,8 +53,18 @@ namespace game
 
         loadPlayer();
         loadTree(pScene);
+        loadFruit(pScene);
 
         return pScene;
+    }
+
+    void LevelManager::loadFruit(VESceneNode *pScene)
+    {
+        auto model = getSceneManagerPointer()->loadModel(EntityName::FruitModel1, "game/Assets/Models/Starfruit", "Starfruit.obj");
+        auto fruit = getSceneManagerPointer()->createSceneNode(EntityName::Fruit1, pScene);
+        model->multiplyTransform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1f)));
+        fruit->multiplyTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 30.0f, 50.0f)));
+        fruit->addChild(model);
     }
 
     void LevelManager::loadTree(VESceneNode *pScene)

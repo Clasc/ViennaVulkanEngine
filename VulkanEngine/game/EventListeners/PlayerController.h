@@ -12,7 +12,7 @@ namespace game
     class PlayerController : public VEEventListener
     {
     private:
-        inline static const float m_movement_speed = 40.0f;
+        inline static const float m_movement_speed = 10.0f;
         inline static const std::string NAME = "PlayerController";
 
     public:
