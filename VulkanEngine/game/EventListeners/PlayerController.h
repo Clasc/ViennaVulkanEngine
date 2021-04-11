@@ -14,7 +14,6 @@ namespace game
     private:
         inline static const float m_movement_speed = 40.0f;
         inline static const std::string NAME = "PlayerController";
-        ///create some default constants for the actions
 
     public:
         PlayerController();
@@ -34,12 +33,12 @@ namespace game
     bool PlayerController::onKeyboard(veEvent event)
     {
         if (event.idata1 == GLFW_KEY_ESCAPE)
-        { //ESC pressed - end the engine
+        {
             getEnginePointer()->end();
             return true;
         }
 
-        glm::vec4 translate = glm::vec4(0.0, 0.0, 0.0, 1.0); //total translation;
+        glm::vec4 translate = glm::vec4(0.0, 0.0, 0.0, 1.0);
         glm::vec4 rot4 = glm::vec4(1.0);
 
         float angle = 0.0;
@@ -73,21 +72,21 @@ namespace game
         case GLFW_KEY_E:
             translate = glm::vec4(0.0, 1.0, 0.0, 1.0); //up
             break;
-        case GLFW_KEY_LEFT: //yaw rotation is already in parent space
+        case GLFW_KEY_LEFT:
             angle = (float)event.dt * 1.0f;
             rot4 = cameraPlayer->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0);
             break;
-        case GLFW_KEY_RIGHT: //yaw rotation is already in parent space
+        case GLFW_KEY_RIGHT:
             angle = (float)event.dt * -1.0f;
             rot4 = cameraPlayer->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0);
             break;
-        case GLFW_KEY_UP:                                                        //pitch rotation is in cam/local space
-            angle = (float)event.dt * 1.0f;                                      //pitch angle
-            rot4 = cameraPlayer->getTransform() * glm::vec4(1.0, 0.0, 0.0, 1.0); //x axis from local to parent space!
+        case GLFW_KEY_UP:
+            angle = (float)event.dt * 1.0f;
+            rot4 = cameraPlayer->getTransform() * glm::vec4(1.0, 0.0, 0.0, 1.0);
             break;
-        case GLFW_KEY_DOWN:                                                      //pitch rotation is in cam/local space
-            angle = (float)event.dt * -1.0f;                                     //pitch angle
-            rot4 = cameraPlayer->getTransform() * glm::vec4(1.0, 0.0, 0.0, 1.0); //x axis from local to parent space!
+        case GLFW_KEY_DOWN:
+            angle = (float)event.dt * -1.0f;
+            rot4 = cameraPlayer->getTransform() * glm::vec4(1.0, 0.0, 0.0, 1.0);
             break;
 
         default:
