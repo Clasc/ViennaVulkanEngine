@@ -48,14 +48,14 @@ namespace game
             auto *playerParent = getSceneManagerPointer()->createSceneNode(EntityName::PlayerParent, getRoot(),
                                                                            glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 10.0f, 0.0f)));
 
-            auto *playerEntity = getSceneManagerPointer()->createSceneNode(EntityName::PlayerEntity, playerParent,
+            auto *cameraPlayer = getSceneManagerPointer()->createSceneNode(EntityName::CameraPlayer, playerParent,
                                                                            glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
 
-            auto *player = getSceneManagerPointer()->createSceneNode(EntityName::Player, playerEntity);
+            auto *player = getSceneManagerPointer()->createSceneNode(EntityName::Player, cameraPlayer);
 
             //camera can only do yaw (parent y-axis) and pitch (local x-axis) rotations
             auto extent = getWindowPointer()->getExtent();
-            _camera = (VECameraProjective *)getSceneManagerPointer()->createCamera("StandardCamera", VECamera::VE_CAMERA_TYPE_PROJECTIVE, playerEntity);
+            _camera = (VECameraProjective *)getSceneManagerPointer()->createCamera("StandardCamera", VECamera::VE_CAMERA_TYPE_PROJECTIVE, cameraPlayer);
             _camera->m_nearPlane = 0.1f;
             _camera->m_farPlane = 500.1f;
             _camera->m_aspectRatio = extent.width / (float)extent.height;
