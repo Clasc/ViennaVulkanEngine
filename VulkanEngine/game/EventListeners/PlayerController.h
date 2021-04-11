@@ -75,19 +75,19 @@ namespace game
             break;
         case GLFW_KEY_LEFT: //yaw rotation is already in parent space
             angle = (float)event.dt * -1.0f;
-            rot4 = glm::vec4(0.0, 1.0, 0.0, 1.0);
+            rot4 = player->getTransform() * glm::vec4(0.0, 1.0, 0.0, 1.0);
             break;
         case GLFW_KEY_RIGHT: //yaw rotation is already in parent space
             angle = (float)event.dt * 1.0f;
-            rot4 = glm::vec4(0.0, 1.0, 0.0, 1.0);
+            rot4 = player->getTransform() * glm::vec4(0.0, 1.0, 0.0, 1.0);
             break;
         case GLFW_KEY_UP:                                                        //pitch rotation is in cam/local space
             angle = (float)event.dt * 1.0f;                                      //pitch angle
-            rot4 = cameraPlayer->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0); //x axis from local to parent space!
+            rot4 = cameraPlayer->getTransform() * glm::vec4(1.0, 0.0, 0.0, 1.0); //x axis from local to parent space!
             break;
         case GLFW_KEY_DOWN:                                                      //pitch rotation is in cam/local space
             angle = (float)event.dt * -1.0f;                                     //pitch angle
-            rot4 = cameraPlayer->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0); //x axis from local to parent space!
+            rot4 = cameraPlayer->getTransform() * glm::vec4(1.0, 0.0, 0.0, 1.0); //x axis from local to parent space!
             break;
 
         default:
