@@ -18,6 +18,7 @@ namespace game
         VESceneNode *getLevelScene(const int &level);
         void loadPlayer();
         void loadTree(VESceneNode *pScene);
+        void loadTree2(VESceneNode *pScene);
         void loadFruit(VESceneNode *pScene);
     };
 
@@ -53,6 +54,7 @@ namespace game
 
         loadPlayer();
         loadTree(pScene);
+        loadTree2(pScene);
         loadFruit(pScene);
 
         return pScene;
@@ -65,6 +67,16 @@ namespace game
         model->multiplyTransform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1f)));
         fruit->multiplyTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 30.0f, 50.0f)));
         fruit->addChild(model);
+    }
+
+    void LevelManager::loadTree2(VESceneNode *pScene)
+    {
+        auto model = getSceneManagerPointer()->loadModel(EntityName::TreeModel2, "game/Assets/Models/Tree2", "lowpolytree.obj");
+        auto tree = getSceneManagerPointer()->createSceneNode(EntityName::Tree2, pScene);
+        model->multiplyTransform(glm::scale(glm::mat4(1.0f), glm::vec3(10.0f)));
+        model->multiplyTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 20.0f, 0.0f)));
+        tree->multiplyTransform(glm::translate(glm::mat4(1.0f), glm::vec3(45.0f, 0.0f, 100.0f)));
+        tree->addChild(model);
     }
 
     void LevelManager::loadTree(VESceneNode *pScene)
