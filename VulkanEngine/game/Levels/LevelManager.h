@@ -56,9 +56,8 @@ namespace game
 
     void LevelManager::setPlayer(VESceneNode *pScene)
     {
+        auto model = getSceneManagerPointer()->loadModel(EntityName::PlayerModel, "game/Assets/Models/Bird", "bird.obj");
         auto player = getSceneManagerPointer()->getSceneNode(EntityName::Player);
-
-        VESceneNode *model = getSceneManagerPointer()->loadModel(EntityName::PlayerModel, "game/Assets/Models/Bird", "bird.obj");
 
         model->multiplyTransform(glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 50.0f, 50.0f)));
         model->multiplyTransform(glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f)));

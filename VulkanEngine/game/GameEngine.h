@@ -14,6 +14,7 @@ namespace game
     {
     private:
         LevelManager m_levelManager;
+        ve::VECameraProjective *_camera;
 
     protected:
     public:
@@ -36,28 +37,41 @@ namespace game
 
         void loadLevel(uint32_t numLevel = 1)
         {
+            setupCameraAndPlayer();
+            setupLights();
+            auto pScene = m_levelManager.getLevelScene(numLevel);
+            registerEventListeners();
+        }
 
-            //camera parent is used for translations
-            VESceneNode *playerEntity = getSceneManagerPointer()->createSceneNode(EntityName::PlayerEntity, getRoot(),
-                                                                                  glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 10.0f, 0.0f)));
+        void setupCameraAndPlayer()
+        {
+            auto *playerParent = getSceneManagerPointer()->createSceneNode(EntityName::PlayerParent, getRoot(),
+                                                                           glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 10.0f, 0.0f)));
 
-            VESceneNode *player = getSceneManagerPointer()->createSceneNode(EntityName::Player, playerEntity);
+            auto *playerEntity = getSceneManagerPointer()->createSceneNode(EntityName::PlayerEntity, playerParent,
+                                                                           glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+
+            auto *player = getSceneManagerPointer()->createSceneNode(EntityName::Player, playerEntity);
 
             //camera can only do yaw (parent y-axis) and pitch (local x-axis) rotations
-            VkExtent2D extent = getWindowPointer()->getExtent();
-            VECameraProjective *camera = (VECameraProjective *)getSceneManagerPointer()->createCamera("StandardCamera", VECamera::VE_CAMERA_TYPE_PROJECTIVE, playerEntity);
-            camera->m_nearPlane = 0.1f;
-            camera->m_farPlane = 500.1f;
-            camera->m_aspectRatio = extent.width / (float)extent.height;
-            camera->m_fov = 90.0f;
-            camera->lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            getSceneManagerPointer()->setCamera(camera);
+            auto extent = getWindowPointer()->getExtent();
+            _camera = (VECameraProjective *)getSceneManagerPointer()->createCamera("StandardCamera", VECamera::VE_CAMERA_TYPE_PROJECTIVE, playerEntity);
+            _camera->m_nearPlane = 0.1f;
+            _camera->m_farPlane = 500.1f;
+            _camera->m_aspectRatio = extent.width / (float)extent.height;
+            _camera->m_fov = 90.0f;
+            _camera->lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            getSceneManagerPointer()->setCamera(_camera);
+        }
 
-            VELight *light4 = (VESpotLight *)getSceneManagerPointer()->createLight("StandardAmbientLight", VELight::VE_LIGHT_TYPE_AMBIENT, camera);
+        void setupLights()
+        {
+
+            auto *light4 = (VESpotLight *)getSceneManagerPointer()->createLight("StandardAmbientLight", VELight::VE_LIGHT_TYPE_AMBIENT, _camera);
             light4->m_col_ambient = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
 
             //use one light source
-            VELight *light1 = (VEDirectionalLight *)getSceneManagerPointer()->createLight("StandardDirLight", VELight::VE_LIGHT_TYPE_DIRECTIONAL, getRoot()); //new VEDirectionalLight("StandardDirLight");
+            auto *light1 = (VEDirectionalLight *)getSceneManagerPointer()->createLight("StandardDirLight", VELight::VE_LIGHT_TYPE_DIRECTIONAL, getRoot()); //new VEDirectionalLight("StandardDirLight");
             light1->lookAt(glm::vec3(0.0f, 20.0f, -20.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             light1->m_col_diffuse = glm::vec4(0.9f, 0.9f, 0.9f, 1.0f);
             light1->m_col_specular = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
@@ -68,15 +82,11 @@ namespace game
             // light3->m_param[0] = 200.0f;
             // light3->multiplyTransform(glm::translate(glm::vec3(0.0f, 0.0f, 15.0f)));
 
-            VELight *light2 = (VESpotLight *)getSceneManagerPointer()->createLight("StandardSpotLight", VELight::VE_LIGHT_TYPE_SPOT, camera);
+            auto *light2 = (VESpotLight *)getSceneManagerPointer()->createLight("StandardSpotLight", VELight::VE_LIGHT_TYPE_SPOT, _camera);
             light2->m_col_diffuse = glm::vec4(0.99f, 0.6f, 0.6f, 1.0f);
             light2->m_col_specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
             light2->m_param[0] = 200.0f;
             light2->multiplyTransform(glm::translate(glm::vec3(5.0f, 0.0f, 0.0f)));
-
-            auto pScene = m_levelManager.getLevelScene(numLevel);
-
-            registerEventListeners();
         }
     };
 }
