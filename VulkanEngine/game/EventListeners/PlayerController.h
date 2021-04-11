@@ -12,7 +12,7 @@ namespace game
     class PlayerController : public VEEventListener
     {
     private:
-        inline static const float m_movement_speed = 4.0f;
+        inline static const float m_movement_speed = 40.0f;
         inline static const std::string NAME = "PlayerController";
         ///create some default constants for the actions
 
@@ -81,13 +81,13 @@ namespace game
             angle = (float)event.dt * 1.0f;
             rot4 = glm::vec4(0.0, 1.0, 0.0, 1.0);
             break;
-        case GLFW_KEY_UP:                         //pitch rotation is in cam/local space
-            angle = (float)event.dt * 1.0f;       //pitch angle
-            rot4 = glm::vec4(0.0, 0.0, 1.0, 1.0); //x axis from local to parent space!
+        case GLFW_KEY_UP:                                                        //pitch rotation is in cam/local space
+            angle = (float)event.dt * 1.0f;                                      //pitch angle
+            rot4 = playerEntity->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0); //x axis from local to parent space!
             break;
-        case GLFW_KEY_DOWN:                       //pitch rotation is in cam/local space
-            angle = (float)event.dt * -1.0f;      //pitch angle
-            rot4 = glm::vec4(0.0, 0.0, 1.0, 1.0); //x axis from local to parent space!
+        case GLFW_KEY_DOWN:                                                      //pitch rotation is in cam/local space
+            angle = (float)event.dt * -1.0f;                                     //pitch angle
+            rot4 = playerEntity->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0); //x axis from local to parent space!
             break;
 
         default:
