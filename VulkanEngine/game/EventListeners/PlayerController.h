@@ -108,12 +108,12 @@ namespace game
 
     void PlayerController::onFrameStarted(veEvent event)
     {
-        // glm::vec4 translate = glm::vec4(0.0, 0.0, 0.0, 1.0); //total translation;
-        // auto playerEntity = getSceneManagerPointer()->getSceneNode(EntityName::CameraPlayer);
-        // auto player = getSceneManagerPointer()->getSceneNode(EntityName::Player);
-        // translate = player->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0);
-        // glm::vec3 trans = m_movement_speed * glm::vec3(translate.x, translate.y, translate.z);
-        // playerEntity->multiplyTransform(glm::translate(glm::mat4(1.0f), (float)event.dt * trans));
+        glm::vec4 translate = glm::vec4(0.0, 0.0, 0.0, 1.0); //total translation;
+        auto cameraPlayer = getSceneManagerPointer()->getSceneNode(EntityName::CameraPlayer);
+        auto playerParent = getSceneManagerPointer()->getSceneNode(EntityName::PlayerParent);
+        translate = cameraPlayer->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0);
+        glm::vec3 trans = m_movement_speed * glm::vec3(translate.x, translate.y, translate.z);
+        playerParent->multiplyTransform(glm::translate(glm::mat4(1.0f), (float)event.dt * trans));
     }
 }
 #endif
