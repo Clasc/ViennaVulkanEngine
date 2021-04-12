@@ -4,6 +4,7 @@
 #include "../VEInclude.h"
 #include "Levels/LevelManager.h"
 #include "EventListeners/PlayerController.h"
+#include "EventListeners/CollisionListener.h"
 
 using namespace ve;
 
@@ -33,6 +34,7 @@ namespace game
         {
             //VEEngine::registerEventListeners();
             registerEventListener(new PlayerController(), {veEvent::VE_EVENT_KEYBOARD, veEvent::VE_EVENT_FRAME_STARTED});
+            registerEventListener(new CollisionListener(), {veEvent::VE_EVENT_FRAME_STARTED});
         };
 
         void loadLevel(uint32_t numLevel = 1)
