@@ -5,6 +5,7 @@
 #include "Levels/LevelManager.h"
 #include "EventListeners/PlayerController.h"
 #include "EventListeners/CollisionListener.h"
+#include "EventListeners/MpegStreamListener.h"
 
 using namespace ve;
 
@@ -35,6 +36,7 @@ namespace game
             //VEEngine::registerEventListeners();
             registerEventListener(new PlayerController(), {veEvent::VE_EVENT_KEYBOARD, veEvent::VE_EVENT_FRAME_STARTED});
             registerEventListener(new CollisionListener(), {veEvent::VE_EVENT_FRAME_STARTED});
+            registerEventListener(new MpegStreamListener(), {veEvent::VE_EVENT_FRAME_ENDED});
         };
 
         void loadLevel(uint32_t numLevel = 1)

@@ -7,9 +7,12 @@ include_directories(
         ../external/threadpool
         ../external/irrKlang/include
         ../external/nuklear
-
+        
         #brew headers
         /usr/local/include      
+        
+        #ffmpeg from brew location
+        /usr/local/Cellar/ffmpeg/4.4/include
 )
 
 
@@ -21,6 +24,9 @@ link_directories(
 # add the executable
 file(GLOB SOURCE_FILES CONFIGURE_DEPENDS  "*.h" "*.cpp")
 
+
+find_library(AVCODEC_LIBRARY avcodec)
+
 add_executable(
         VulkanEngine
         ${SOURCE_FILES}
@@ -28,7 +34,7 @@ add_executable(
         ../external/threadpool/ThreadPool.cpp
 )
 
-target_link_libraries(VulkanEngine vulkan glfw assimp)
+target_link_libraries(VulkanEngine vulkan glfw assimp ${AVCODEC_LIBRARY})
 
 
 
