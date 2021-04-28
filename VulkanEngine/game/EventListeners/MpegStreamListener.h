@@ -38,6 +38,7 @@ namespace game
     MpegStreamListener::MpegStreamListener() : VEEventListener(NAME)
     {
         m_codec = avcodec_find_encoder(codecId);
+
         m_avcodec_context = avcodec_alloc_context3(m_codec);
 
         m_avcodec_context->bit_rate = 400000;
@@ -57,6 +58,12 @@ namespace game
         m_avcodec_context->gop_size = 10; // emit one intra frame every ten frames
         m_avcodec_context->max_b_frames = 1;
         m_avcodec_context->pix_fmt = AV_PIX_FMT_YUV420P;
+
+        if (avcodec_open2(m_avcodec_context, m_codec, NULL) < 0)
+        {
+            fprintf(stderr, "could not open codec\n");
+            exit(1);
+        }
     }
 
     MpegStreamListener::~MpegStreamListener()
@@ -66,12 +73,6 @@ namespace game
     void MpegStreamListener::encode(AVFrame *frame, AVPacket *pkt, FILE *outfile)
     {
         int ret;
-
-        if (avcodec_open2(m_avcodec_context, m_codec, NULL) < 0)
-        {
-            fprintf(stderr, "could not open codec\n");
-            exit(1);
-        }
 
         // send the frame to the encoder */
         ret = avcodec_send_frame(m_avcodec_context, frame);
@@ -133,45 +134,58 @@ namespace game
             exit(1);
         }
 
-        auto dataImage = m_frames[0];
-        if (!dataImage)
+        for (auto dataImage : m_frames)
         {
-            return false;
+            if (!dataImage)
+            {
+                continue;
+            }
+
+            auto frame = av_frame_alloc();
+            frame->format = m_avcodec_context->pix_fmt;
+            frame->width = m_avcodec_context->width;
+            frame->height = m_avcodec_context->height;
+
+            auto rgbFrame = av_frame_alloc();
+            rgbFrame->format = AV_PIX_FMT_RGBA;
+            rgbFrame->width = m_avcodec_context->width;
+            rgbFrame->height = m_avcodec_context->height;
+
+            if (av_frame_get_buffer(frame, 32) < 0)
+            {
+                fprintf(stderr, "could not alloc the frame data\n");
+                exit(1);
+            }
+
+            if (av_frame_make_writable(frame) < 0)
+            {
+                fprintf(stderr, "Cannot make frame writeable\n");
+                exit(1);
+            }
+
+            if (av_frame_make_writable(rgbFrame) < 0)
+            {
+                fprintf(stderr, "Cannot make frame writeable\n");
+                exit(1);
+            }
+
+            auto pkt = av_packet_alloc();
+            if (!pkt)
+            {
+                fprintf(stderr, "Cannot alloc packet\n");
+                exit(1);
+            }
+
+            av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, dataImage, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, 1);
+
+            std::cout << "after fill arrays" << std::endl;
+
+            auto img_convert_ctx = sws_getContext(m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
+            sws_scale(img_convert_ctx, (const uint8_t **)rgbFrame->data, rgbFrame->linesize, 0, m_avcodec_context->height,
+                      frame->data, frame->linesize);
+
+            encode(frame, pkt, f);
         }
-
-        auto frame = av_frame_alloc();
-        frame->format = m_avcodec_context->pix_fmt;
-        frame->width = m_avcodec_context->width;
-        frame->height = m_avcodec_context->height;
-
-        if (av_frame_get_buffer(frame, 32) < 0)
-        {
-            fprintf(stderr, "could not alloc the frame data\n");
-            exit(1);
-        }
-
-        if (av_frame_make_writable(frame) < 0)
-        {
-            fprintf(stderr, "Cannot make frame writeable\n");
-            exit(1);
-        }
-
-        auto pkt = av_packet_alloc();
-        if (!pkt)
-        {
-            fprintf(stderr, "Cannot alloc packet\n");
-            exit(1);
-        }
-
-        av_image_fill_arrays(frame->data, frame->linesize, dataImage, AV_PIX_FMT_YUV420P, m_avcodec_context->width, m_avcodec_context->height, 1);
-
-        std::cout << "after fill arrays" << std::endl;
-
-        // struct SwsContext *img_convert_ctx = sws_getContext(m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
-        // sws_scale(img_convert_ctx, (const uint8_t **)frame->data, frame->linesize, 0, m_avcodec_context->height,
-        //           frame->data, frame->linesize);
-
-        encode(frame, pkt, f);
 
         m_frames.clear();
 
