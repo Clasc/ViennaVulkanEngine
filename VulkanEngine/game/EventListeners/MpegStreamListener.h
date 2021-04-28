@@ -20,9 +20,10 @@ namespace game
     {
     private:
         inline static const std::string NAME = "MpegStreamListener";
+        inline static const char *FILENAME = "media/stream/video/out.mpg";
         uint32_t m_numScreenshot = 0;
         AVCodecContext *m_avcodec_context;
-        AVCodecID codecId = AV_CODEC_ID_MPEG4;
+        AVCodecID codecId = AV_CODEC_ID_MPEG1VIDEO;
         AVCodec *m_codec;
         std::vector<uint8_t *> m_frames;
 
@@ -123,28 +124,59 @@ namespace game
             // if R is not pressed return
             return false;
         }
+        // if R is pressed save recording
 
-        FILE *f = new FILE();
-
-        // if R pressed save recording
-        for (auto dataImage : m_frames)
+        FILE *f = fopen(FILENAME, "wb");
+        if (!f)
         {
-            auto frame = av_frame_alloc();
-            auto pkt = av_packet_alloc();
-            struct SwsContext *img_convert_ctx = sws_getContext(m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_YUV420P, m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
-
-            // width * channels. RGB has 3 channels, thats why we multiply it by 3
-            int linesize[1] = {m_avcodec_context->width * 3};
-            av_image_fill_arrays(frame->data, linesize, dataImage, AV_PIX_FMT_RGB24, m_avcodec_context->width, m_avcodec_context->height, 0);
-
-            // encode the image
-            encode(frame, pkt, f);
+            fprintf(stderr, "could not open %s\n", FILENAME);
+            exit(1);
         }
+
+        auto dataImage = m_frames[0];
+        if (!dataImage)
+        {
+            return false;
+        }
+
+        auto frame = av_frame_alloc();
+        frame->format = m_avcodec_context->pix_fmt;
+        frame->width = m_avcodec_context->width;
+        frame->height = m_avcodec_context->height;
+
+        if (av_frame_get_buffer(frame, 32) < 0)
+        {
+            fprintf(stderr, "could not alloc the frame data\n");
+            exit(1);
+        }
+
+        if (av_frame_make_writable(frame) < 0)
+        {
+            fprintf(stderr, "Cannot make frame writeable\n");
+            exit(1);
+        }
+
+        auto pkt = av_packet_alloc();
+        if (!pkt)
+        {
+            fprintf(stderr, "Cannot alloc packet\n");
+            exit(1);
+        }
+
+        av_image_fill_arrays(frame->data, frame->linesize, dataImage, AV_PIX_FMT_YUV420P, m_avcodec_context->width, m_avcodec_context->height, 1);
+
+        std::cout << "after fill arrays" << std::endl;
+
+        // struct SwsContext *img_convert_ctx = sws_getContext(m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
+        // sws_scale(img_convert_ctx, (const uint8_t **)frame->data, frame->linesize, 0, m_avcodec_context->height,
+        //           frame->data, frame->linesize);
+
+        encode(frame, pkt, f);
 
         m_frames.clear();
 
         return true;
     }
-
 }
+
 #endif

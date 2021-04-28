@@ -15,4 +15,4 @@ VulkanEngine/media/screenshots
 # Xcode
 ## User settings
 */xcuserdata/
-
+**/*.DS_Store
