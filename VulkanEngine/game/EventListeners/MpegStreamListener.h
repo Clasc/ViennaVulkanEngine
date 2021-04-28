@@ -1,4 +1,5 @@
 #include "../../VEInclude.h"
+#include <vector>
 extern "C"
 {
 #include "libavcodec/avcodec.h"
@@ -22,24 +23,29 @@ namespace game
         uint32_t m_numScreenshot = 0;
         AVCodecContext *m_avcodec_context;
         AVCodecID codecId = AV_CODEC_ID_MPEG4;
+        AVCodec *m_codec;
+        std::vector<uint8_t *> m_frames;
 
     public:
         MpegStreamListener();
         ~MpegStreamListener();
         virtual void onFrameEnded(veEvent event);
         void encode(AVFrame *frame, AVPacket *pkt, FILE *outfile);
+        bool onKeyboard(veEvent event);
     };
 
     MpegStreamListener::MpegStreamListener() : VEEventListener(NAME)
     {
-        const AVCodec *codec = avcodec_find_encoder(codecId);
-        m_avcodec_context = avcodec_alloc_context3(codec);
+        m_codec = avcodec_find_encoder(codecId);
+        m_avcodec_context = avcodec_alloc_context3(m_codec);
 
         m_avcodec_context->bit_rate = 400000;
 
         // resolution must be a multiple of two
-        m_avcodec_context->width = 352;
-        m_avcodec_context->height = 288;
+        auto extent = getEnginePointer()->getWindow()->getExtent();
+
+        m_avcodec_context->width = extent.width;
+        m_avcodec_context->height = extent.height;
 
         // frames per second
         m_avcodec_context->time_base.num = 1;
@@ -50,12 +56,6 @@ namespace game
         m_avcodec_context->gop_size = 10; // emit one intra frame every ten frames
         m_avcodec_context->max_b_frames = 1;
         m_avcodec_context->pix_fmt = AV_PIX_FMT_YUV420P;
-
-        if (avcodec_open2(m_avcodec_context, codec, NULL) < 0)
-        {
-            fprintf(stderr, "could not open codec\n");
-            exit(1);
-        }
     }
 
     MpegStreamListener::~MpegStreamListener()
@@ -65,6 +65,12 @@ namespace game
     void MpegStreamListener::encode(AVFrame *frame, AVPacket *pkt, FILE *outfile)
     {
         int ret;
+
+        if (avcodec_open2(m_avcodec_context, m_codec, NULL) < 0)
+        {
+            fprintf(stderr, "could not open codec\n");
+            exit(1);
+        }
 
         // send the frame to the encoder */
         ret = avcodec_send_frame(m_avcodec_context, frame);
@@ -107,15 +113,37 @@ namespace game
                                           VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                           dataImage, extent.width, extent.height, imageSize);
 
-        auto frame = av_frame_alloc();
-        struct SwsContext *img_convert_ctx = sws_getContext(m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_YUV420P, m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
-        avpicture_fill((AVPicture *)frame, dataImage, AV_PIX_FMT_RGB24, m_avcodec_context->width, m_avcodec_context->height);
-        sws_scale(img_convert_ctx, frame->data, frame->linesize, 0, m_avcodec_context->height, frame->data, frame->linesize);
+        m_frames.push_back(dataImage);
+    }
 
-        // encode the image
-        encode(frame, pkt, f);
+    bool MpegStreamListener::onKeyboard(veEvent event)
+    {
+        if (event.idata1 != GLFW_KEY_R)
+        {
+            // if R is not pressed return
+            return false;
+        }
 
-        delete[] dataImage;
+        FILE *f = new FILE();
+
+        // if R pressed save recording
+        for (auto dataImage : m_frames)
+        {
+            auto frame = av_frame_alloc();
+            auto pkt = av_packet_alloc();
+            struct SwsContext *img_convert_ctx = sws_getContext(m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_YUV420P, m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
+
+            // width * channels. RGB has 3 channels, thats why we multiply it by 3
+            int linesize[1] = {m_avcodec_context->width * 3};
+            av_image_fill_arrays(frame->data, linesize, dataImage, AV_PIX_FMT_RGB24, m_avcodec_context->width, m_avcodec_context->height, 0);
+
+            // encode the image
+            encode(frame, pkt, f);
+        }
+
+        m_frames.clear();
+
+        return true;
     }
 
 }

@@ -36,7 +36,7 @@ namespace game
             //VEEngine::registerEventListeners();
             registerEventListener(new PlayerController(), {veEvent::VE_EVENT_KEYBOARD, veEvent::VE_EVENT_FRAME_STARTED});
             registerEventListener(new CollisionListener(), {veEvent::VE_EVENT_FRAME_STARTED});
-            registerEventListener(new MpegStreamListener(), {veEvent::VE_EVENT_FRAME_ENDED});
+            registerEventListener(new MpegStreamListener(), {veEvent::VE_EVENT_FRAME_ENDED, veEvent::VE_EVENT_KEYBOARD});
         };
 
         void loadLevel(uint32_t numLevel = 1)
