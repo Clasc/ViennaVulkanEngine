@@ -1,12 +1,6 @@
 #include "../../VEInclude.h"
+#include "../Services/Encoder.h"
 #include <vector>
-extern "C"
-{
-#include "libavcodec/avcodec.h"
-#include "libavutil/frame.h"
-#include "libavutil/imgutils.h"
-#include "libswscale/swscale.h"
-}
 
 #ifndef MPEG_STREAM_LISTENER_H
 #define MPEG_STREAM_LISTENER_H
@@ -21,98 +15,25 @@ namespace game
     private:
         inline static const std::string NAME = "MpegStreamListener";
         inline static const char *FILEPATH = "media/stream/video/out";
-        AVCodecContext *m_avcodec_context;
-        SwsContext *m_img_convert_ctx;
-        AVCodecID codecId = AV_CODEC_ID_MPEG2VIDEO;
-        AVCodec *m_codec;
         std::vector<uint8_t *> m_frames;
         bool m_is_recording = false;
         int m_num_recordings = 0;
+        Encoder m_encoder;
 
     public:
         MpegStreamListener();
         ~MpegStreamListener();
-        void setupContexts();
-        void cleanupContexts();
         virtual void onFrameEnded(veEvent event);
-        void encode(AVFrame *frame, AVPacket *pkt, FILE *outfile);
         bool onKeyboard(veEvent event);
-        };
+    };
 
     MpegStreamListener::MpegStreamListener() : VEEventListener(NAME)
     {
+        m_encoder = Encoder();
     }
 
     MpegStreamListener::~MpegStreamListener()
     {
-    }
-
-    void MpegStreamListener::encode(AVFrame *frame, AVPacket *pkt, FILE *outfile)
-    {
-        int ret;
-
-        // send the frame to the encoder */
-        ret = avcodec_send_frame(m_avcodec_context, frame);
-        if (ret < 0)
-        {
-            fprintf(stderr, "error sending a frame for encoding\n");
-            exit(1);
-        }
-
-        while (ret >= 0)
-        {
-            int ret = avcodec_receive_packet(m_avcodec_context, pkt);
-            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
-                return;
-            else if (ret < 0)
-            {
-                fprintf(stderr, "error during encoding\n");
-                exit(1);
-            }
-
-            //printf("encoded frame %lld (size=%5d)\n", pkt->pts, pkt->size);
-            fwrite(pkt->data, 1, pkt->size, outfile);
-            av_packet_unref(pkt);
-            av_frame_free(&frame);
-        }
-    }
-
-    void MpegStreamListener::setupContexts()
-    {
-        m_codec = avcodec_find_encoder(codecId);
-
-        m_avcodec_context = avcodec_alloc_context3(m_codec);
-
-        m_avcodec_context->bit_rate = 400000;
-
-        // resolution must be a multiple of two
-        auto extent = getEnginePointer()->getWindow()->getExtent();
-
-        m_avcodec_context->width = extent.width;
-        m_avcodec_context->height = extent.height;
-
-        // frames per second
-        m_avcodec_context->time_base.num = 1;
-        m_avcodec_context->time_base.den = 25;
-        m_avcodec_context->framerate.num = 25;
-        m_avcodec_context->framerate.den = 1;
-
-        m_avcodec_context->gop_size = 10; // emit one intra frame every ten frames
-        m_avcodec_context->max_b_frames = 1;
-        m_avcodec_context->pix_fmt = AV_PIX_FMT_YUV420P;
-
-        if (avcodec_open2(m_avcodec_context, m_codec, NULL) < 0)
-        {
-            fprintf(stderr, "could not open codec\n");
-            exit(1);
-        }
-
-        m_img_convert_ctx = sws_getContext(m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_YUV420P, 0, NULL, NULL, NULL);
-        if (!m_img_convert_ctx)
-        {
-            fprintf(stderr, "error creating swsContext");
-            exit(1);
-        }
     }
 
     void MpegStreamListener::onFrameEnded(veEvent event)
@@ -159,13 +80,14 @@ namespace game
         if (is_R_pressed && m_is_recording)
         {
             m_is_recording = false;
-            setupContexts();
-            auto filename = std::string(FILEPATH) + std::to_string(m_num_recordings) + ".mpg";
+            auto extent = getEnginePointer()->getWindow()->getExtent();
+            m_encoder.setupContexts(extent.width, extent.height);
 
+            auto filename = std::string(FILEPATH) + std::to_string(m_num_recordings) + ".mpg";
             FILE *file = fopen(filename.c_str(), "wb");
             if (!file)
             {
-                fprintf(stderr, "could not open %s\n", FILEPATH);
+                fprintf(stderr, "could not open %s\n", filename.c_str());
                 return false;
             }
 
@@ -173,61 +95,11 @@ namespace game
 
             for (auto dataImage : m_frames)
             {
-                fflush(stdout);
-
                 if (!dataImage)
                 {
                     continue;
                 }
-
-                auto frame = av_frame_alloc();
-                frame->format = m_avcodec_context->pix_fmt;
-                frame->width = m_avcodec_context->width;
-                frame->height = m_avcodec_context->height;
-
-                auto rgbFrame = av_frame_alloc();
-                rgbFrame->format = AV_PIX_FMT_RGBA;
-                rgbFrame->width = m_avcodec_context->width;
-                rgbFrame->height = m_avcodec_context->height;
-
-                if (av_frame_get_buffer(frame, 32) < 0)
-                {
-                    fprintf(stderr, "could not alloc the frame data\n");
-                    exit(1);
-                }
-
-                if (av_frame_get_buffer(rgbFrame, 32) < 0)
-                {
-                    fprintf(stderr, "could not alloc the frame data\n");
-                    exit(1);
-                }
-
-                if (av_frame_make_writable(frame) < 0)
-                {
-                    fprintf(stderr, "Cannot make frame writeable\n");
-                    exit(1);
-                }
-
-                if (av_frame_make_writable(rgbFrame) < 0)
-                {
-                    fprintf(stderr, "Cannot make frame writeable: rgb Frame\n");
-                    exit(1);
-                }
-
-                auto pkt = av_packet_alloc();
-                if (!pkt)
-                {
-                    fprintf(stderr, "Cannot alloc packet\n");
-                    exit(1);
-                }
-
-                av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, dataImage, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, 1);
-
-                sws_scale(m_img_convert_ctx, (const uint8_t **)rgbFrame->data, rgbFrame->linesize, 0, m_avcodec_context->height,
-                          frame->data, frame->linesize);
-
-                frame->pts = counter++;
-                encode(frame, pkt, file);
+                m_encoder.saveImageBufferToFile(dataImage, file, counter++);
             }
 
             std::cout << "done saving video!" << std::endl;
@@ -236,15 +108,9 @@ namespace game
             fwrite(endcode, 1, sizeof(endcode), file);
             m_frames.clear();
 
-            cleanupContexts();
+            m_encoder.cleanupContexts();
             return true;
         }
-    }
-
-    void MpegStreamListener::cleanupContexts()
-    {
-        avcodec_free_context(&m_avcodec_context);
-        sws_freeContext(m_img_convert_ctx);
     }
 }
 
