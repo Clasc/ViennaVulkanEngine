@@ -25,6 +25,7 @@ namespace game
         AVCodecID codecId = AV_CODEC_ID_MPEG2VIDEO;
         AVCodec *m_codec;
         std::vector<uint8_t *> m_frames;
+        bool m_is_recording = false;
 
     public:
         MpegStreamListener();
@@ -102,6 +103,11 @@ namespace game
 
     void MpegStreamListener::onFrameEnded(veEvent event)
     {
+        if (!m_is_recording)
+        {
+            return;
+        }
+
         VkExtent2D extent = getWindowPointer()->getExtent();
         uint32_t imageSize = extent.width * extent.height * 4;
         VkImage image = getRendererPointer()->getSwapChainImage();
@@ -121,100 +127,107 @@ namespace game
 
     bool MpegStreamListener::onKeyboard(veEvent event)
     {
-        if (event.idata1 != GLFW_KEY_R)
-        {
-            // if R is not pressed return
-            return false;
-        }
+        bool is_R_pressed = event.idata1 == GLFW_KEY_R && event.idata3 == GLFW_PRESS;
 
-        // check, that enough frames are available - otherwise recording is unusable or corrupted
-        if (m_frames.size() < 5)
+        if (event.idata3 != GLFW_PRESS)
         {
             return false;
         }
 
-        FILE *file = fopen(FILENAME, "wb");
-        if (!file)
+        if (event.idata1 == GLFW_KEY_R && !m_is_recording)
         {
-            fprintf(stderr, "could not open %s\n", FILENAME);
-            return false;
+            m_is_recording = true;
+            std::cout << "recording started" << std::endl;
+            return true;
         }
 
-        auto img_convert_ctx = sws_getContext(m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_YUV420P, 0, NULL, NULL, NULL);
-        if (!img_convert_ctx)
+        if (event.idata1 == GLFW_KEY_R && m_is_recording)
         {
-            fprintf(stderr, "error creating swsContext");
-            return false;
+            m_is_recording = false;
+
+            FILE *file = fopen(FILENAME, "wb");
+            if (!file)
+            {
+                fprintf(stderr, "could not open %s\n", FILENAME);
+                return false;
+            }
+
+            auto img_convert_ctx = sws_getContext(m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_YUV420P, 0, NULL, NULL, NULL);
+            if (!img_convert_ctx)
+            {
+                fprintf(stderr, "error creating swsContext");
+                return false;
+            }
+
+            auto counter = 0;
+
+            for (auto dataImage : m_frames)
+            {
+                fflush(stdout);
+
+                if (!dataImage)
+                {
+                    continue;
+                }
+
+                auto frame = av_frame_alloc();
+                frame->format = m_avcodec_context->pix_fmt;
+                frame->width = m_avcodec_context->width;
+                frame->height = m_avcodec_context->height;
+
+                auto rgbFrame = av_frame_alloc();
+                rgbFrame->format = AV_PIX_FMT_RGBA;
+                rgbFrame->width = m_avcodec_context->width;
+                rgbFrame->height = m_avcodec_context->height;
+
+                if (av_frame_get_buffer(frame, 32) < 0)
+                {
+                    fprintf(stderr, "could not alloc the frame data\n");
+                    exit(1);
+                }
+
+                if (av_frame_get_buffer(rgbFrame, 32) < 0)
+                {
+                    fprintf(stderr, "could not alloc the frame data\n");
+                    exit(1);
+                }
+
+                if (av_frame_make_writable(frame) < 0)
+                {
+                    fprintf(stderr, "Cannot make frame writeable\n");
+                    exit(1);
+                }
+
+                if (av_frame_make_writable(rgbFrame) < 0)
+                {
+                    fprintf(stderr, "Cannot make frame writeable: rgb Frame\n");
+                    exit(1);
+                }
+
+                auto pkt = av_packet_alloc();
+                if (!pkt)
+                {
+                    fprintf(stderr, "Cannot alloc packet\n");
+                    exit(1);
+                }
+
+                av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, dataImage, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, 1);
+
+                sws_scale(img_convert_ctx, (const uint8_t **)rgbFrame->data, rgbFrame->linesize, 0, m_avcodec_context->height,
+                          frame->data, frame->linesize);
+
+                frame->pts = counter++;
+                encode(frame, pkt, file);
+            }
+
+            std::cout << "done saving video!" << std::endl;
+
+            uint8_t endcode[] = {0, 0, 1, 0xb7};
+            fwrite(endcode, 1, sizeof(endcode), file);
+            m_frames.clear();
+            sws_freeContext(img_convert_ctx);
+            return true;
         }
-
-        auto counter = 0;
-
-        for (auto dataImage : m_frames)
-        {
-            fflush(stdout);
-
-            if (!dataImage)
-            {
-                continue;
-            }
-
-            auto frame = av_frame_alloc();
-            frame->format = m_avcodec_context->pix_fmt;
-            frame->width = m_avcodec_context->width;
-            frame->height = m_avcodec_context->height;
-
-            auto rgbFrame = av_frame_alloc();
-            rgbFrame->format = AV_PIX_FMT_RGBA;
-            rgbFrame->width = m_avcodec_context->width;
-            rgbFrame->height = m_avcodec_context->height;
-
-            if (av_frame_get_buffer(frame, 32) < 0)
-            {
-                fprintf(stderr, "could not alloc the frame data\n");
-                exit(1);
-            }
-
-            if (av_frame_get_buffer(rgbFrame, 32) < 0)
-            {
-                fprintf(stderr, "could not alloc the frame data\n");
-                exit(1);
-            }
-
-            if (av_frame_make_writable(frame) < 0)
-            {
-                fprintf(stderr, "Cannot make frame writeable\n");
-                exit(1);
-            }
-
-            if (av_frame_make_writable(rgbFrame) < 0)
-            {
-                fprintf(stderr, "Cannot make frame writeable: rgb Frame\n");
-                exit(1);
-            }
-
-            auto pkt = av_packet_alloc();
-            if (!pkt)
-            {
-                fprintf(stderr, "Cannot alloc packet\n");
-                exit(1);
-            }
-
-            av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, dataImage, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, 1);
-
-            sws_scale(img_convert_ctx, (const uint8_t **)rgbFrame->data, rgbFrame->linesize, 0, m_avcodec_context->height,
-                      frame->data, frame->linesize);
-
-            frame->pts = counter++;
-            encode(frame, pkt, file);
-        }
-
-        std::cout << "done saving video!" << std::endl;
-
-        uint8_t endcode[] = {0, 0, 1, 0xb7};
-        fwrite(endcode, 1, sizeof(endcode), file);
-        m_frames.clear();
-        sws_freeContext(img_convert_ctx);
-        return true;
     }
 
     bool MpegStreamListener::onSceneNodeDeleted(veEvent event)
