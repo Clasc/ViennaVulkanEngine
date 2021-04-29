@@ -21,7 +21,6 @@ namespace game
     private:
         inline static const std::string NAME = "MpegStreamListener";
         inline static const char *FILENAME = "media/stream/video/out.mpg";
-        uint32_t m_numScreenshot = 0;
         AVCodecContext *m_avcodec_context;
         AVCodecID codecId = AV_CODEC_ID_MPEG2VIDEO;
         AVCodec *m_codec;
@@ -33,7 +32,7 @@ namespace game
         virtual void onFrameEnded(veEvent event);
         void encode(AVFrame *frame, AVPacket *pkt, FILE *outfile);
         bool onKeyboard(veEvent event);
-        // bool onSceneNodeDeleted(veEvent event);
+        bool onSceneNodeDeleted(veEvent event);
     };
 
     MpegStreamListener::MpegStreamListener() : VEEventListener(NAME)
@@ -211,9 +210,16 @@ namespace game
 
         std::cout << "done saving video!" << std::endl;
 
+        uint8_t endcode[] = {0, 0, 1, 0xb7};
+        fwrite(endcode, 1, sizeof(endcode), file);
         m_frames.clear();
         sws_freeContext(img_convert_ctx);
         return true;
+    }
+
+    bool MpegStreamListener::onSceneNodeDeleted(veEvent event)
+    {
+        avcodec_free_context(&m_avcodec_context);
     }
 }
 
