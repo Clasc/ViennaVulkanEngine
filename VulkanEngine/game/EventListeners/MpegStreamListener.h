@@ -23,7 +23,7 @@ namespace game
         inline static const char *FILENAME = "media/stream/video/out.mpg";
         uint32_t m_numScreenshot = 0;
         AVCodecContext *m_avcodec_context;
-        AVCodecID codecId = AV_CODEC_ID_MPEG1VIDEO;
+        AVCodecID codecId = AV_CODEC_ID_MPEG2VIDEO;
         AVCodec *m_codec;
         std::vector<uint8_t *> m_frames;
 
@@ -33,6 +33,7 @@ namespace game
         virtual void onFrameEnded(veEvent event);
         void encode(AVFrame *frame, AVPacket *pkt, FILE *outfile);
         bool onKeyboard(veEvent event);
+        // bool onSceneNodeDeleted(veEvent event);
     };
 
     MpegStreamListener::MpegStreamListener() : VEEventListener(NAME)
@@ -93,9 +94,10 @@ namespace game
                 exit(1);
             }
 
-            printf("encoded frame %lld (size=%5d)\n", pkt->pts, pkt->size);
+            //printf("encoded frame %lld (size=%5d)\n", pkt->pts, pkt->size);
             fwrite(pkt->data, 1, pkt->size, outfile);
             av_packet_unref(pkt);
+            av_frame_free(&frame);
         }
     }
 
@@ -125,17 +127,33 @@ namespace game
             // if R is not pressed return
             return false;
         }
-        // if R is pressed save recording
 
-        FILE *f = fopen(FILENAME, "wb");
-        if (!f)
+        // check, that enough frames are available - otherwise recording is unusable or corrupted
+        if (m_frames.size() < 5)
+        {
+            return false;
+        }
+
+        FILE *file = fopen(FILENAME, "wb");
+        if (!file)
         {
             fprintf(stderr, "could not open %s\n", FILENAME);
-            exit(1);
+            return false;
         }
+
+        auto img_convert_ctx = sws_getContext(m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_YUV420P, 0, NULL, NULL, NULL);
+        if (!img_convert_ctx)
+        {
+            fprintf(stderr, "error creating swsContext");
+            return false;
+        }
+
+        auto counter = 0;
 
         for (auto dataImage : m_frames)
         {
+            fflush(stdout);
+
             if (!dataImage)
             {
                 continue;
@@ -157,6 +175,12 @@ namespace game
                 exit(1);
             }
 
+            if (av_frame_get_buffer(rgbFrame, 32) < 0)
+            {
+                fprintf(stderr, "could not alloc the frame data\n");
+                exit(1);
+            }
+
             if (av_frame_make_writable(frame) < 0)
             {
                 fprintf(stderr, "Cannot make frame writeable\n");
@@ -165,7 +189,7 @@ namespace game
 
             if (av_frame_make_writable(rgbFrame) < 0)
             {
-                fprintf(stderr, "Cannot make frame writeable\n");
+                fprintf(stderr, "Cannot make frame writeable: rgb Frame\n");
                 exit(1);
             }
 
@@ -178,17 +202,17 @@ namespace game
 
             av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, dataImage, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, 1);
 
-            std::cout << "after fill arrays" << std::endl;
-
-            auto img_convert_ctx = sws_getContext(m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, AV_PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
             sws_scale(img_convert_ctx, (const uint8_t **)rgbFrame->data, rgbFrame->linesize, 0, m_avcodec_context->height,
                       frame->data, frame->linesize);
 
-            encode(frame, pkt, f);
+            frame->pts = counter++;
+            encode(frame, pkt, file);
         }
 
-        m_frames.clear();
+        std::cout << "done saving video!" << std::endl;
 
+        m_frames.clear();
+        sws_freeContext(img_convert_ctx);
         return true;
     }
 }
