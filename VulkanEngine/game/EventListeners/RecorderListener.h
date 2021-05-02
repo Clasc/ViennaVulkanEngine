@@ -2,18 +2,18 @@
 #include "../Services/Encoder.h"
 #include <vector>
 
-#ifndef MPEG_STREAM_LISTENER_H
-#define MPEG_STREAM_LISTENER_H
+#ifndef RECORDER_LISTENER_H
+#define RECORDER_LISTENER_H
 
 using namespace ve;
 
 namespace game
 {
 
-    class MpegStreamListener : public VEEventListener
+    class RecorderListener : public VEEventListener
     {
     private:
-        inline static const std::string NAME = "MpegStreamListener";
+        inline static const std::string NAME = "RecorderListener";
         inline static const char *FILEPATH = "media/stream/video/out";
         std::vector<uint8_t *> m_frames;
         bool m_is_recording = false;
@@ -21,22 +21,22 @@ namespace game
         Encoder m_encoder;
 
     public:
-        MpegStreamListener();
-        ~MpegStreamListener();
+        RecorderListener();
+        ~RecorderListener();
         virtual void onFrameEnded(veEvent event);
         bool onKeyboard(veEvent event);
     };
 
-    MpegStreamListener::MpegStreamListener() : VEEventListener(NAME)
+    RecorderListener::RecorderListener() : VEEventListener(NAME)
     {
         m_encoder = Encoder();
     }
 
-    MpegStreamListener::~MpegStreamListener()
+    RecorderListener::~RecorderListener()
     {
     }
 
-    void MpegStreamListener::onFrameEnded(veEvent event)
+    void RecorderListener::onFrameEnded(veEvent event)
     {
         if (!m_is_recording)
         {
@@ -60,7 +60,7 @@ namespace game
         m_frames.push_back(dataImage);
     }
 
-    bool MpegStreamListener::onKeyboard(veEvent event)
+    bool RecorderListener::onKeyboard(veEvent event)
     {
         bool is_R_pressed = event.idata1 == GLFW_KEY_R && event.idata3 == GLFW_PRESS;
 
