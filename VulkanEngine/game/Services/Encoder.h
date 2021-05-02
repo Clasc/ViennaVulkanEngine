@@ -14,8 +14,8 @@ namespace game
     class Encoder
     {
     private:
-        static const size_t BIT_RATE = 400000;
-        static const AVCodecID CODEC = AV_CODEC_ID_VMDVIDEO;
+        static const size_t BIT_RATE = 4000000;
+        static const AVCodecID CODEC = AV_CODEC_ID_MPEG2VIDEO;
 
         AVCodecContext *m_avcodec_context;
         SwsContext *m_img_convert_ctx;
