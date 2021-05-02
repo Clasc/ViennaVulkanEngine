@@ -14,9 +14,11 @@ namespace game
     class Encoder
     {
     private:
+        static const size_t BIT_RATE = 400000;
+        static const AVCodecID CODEC = AV_CODEC_ID_VMDVIDEO;
+
         AVCodecContext *m_avcodec_context;
         SwsContext *m_img_convert_ctx;
-        AVCodecID codecId = AV_CODEC_ID_MPEG2VIDEO;
         AVCodec *m_codec;
 
     public:
@@ -24,7 +26,7 @@ namespace game
         ~Encoder();
         void encode(AVFrame *frame, AVPacket *pkt, FILE *outfile);
         void setupContexts(size_t width, size_t height);
-        void saveImageBufferToFile(uint8_t *dataImage, FILE *f, int position);
+        void saveImageBufferToFile(const uint8_t *dataImage, FILE *f, int position);
         void cleanupContexts();
     };
 
@@ -38,11 +40,11 @@ namespace game
 
     void Encoder::setupContexts(size_t width, size_t height)
     {
-        m_codec = avcodec_find_encoder(codecId);
+        m_codec = avcodec_find_encoder(CODEC);
 
         m_avcodec_context = avcodec_alloc_context3(m_codec);
 
-        m_avcodec_context->bit_rate = 400000;
+        m_avcodec_context->bit_rate = BIT_RATE;
 
         m_avcodec_context->width = width;
         m_avcodec_context->height = height;
@@ -107,7 +109,7 @@ namespace game
         sws_freeContext(m_img_convert_ctx);
     }
 
-    void Encoder::saveImageBufferToFile(uint8_t *dataImage, FILE *f, int position)
+    void Encoder::saveImageBufferToFile(const uint8_t *dataImage, FILE *f, int position)
     {
         fflush(stdout);
 

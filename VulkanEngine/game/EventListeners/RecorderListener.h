@@ -93,7 +93,7 @@ namespace game
 
             auto counter = 0;
 
-            for (auto dataImage : m_frames)
+            for (const auto dataImage : m_frames)
             {
                 if (!dataImage)
                 {
