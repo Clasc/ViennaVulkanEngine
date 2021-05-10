@@ -18,7 +18,7 @@ namespace game
     {
         m_encoder = Encoder();
         m_udpSender = UDPSender();
-        m_udpSender.init("127.0.0.1", 8080);
+        m_udpSender.init("127.0.0.1", 8888);
     }
 
     Streamer::~Streamer()
