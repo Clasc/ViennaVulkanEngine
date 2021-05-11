@@ -1,3 +1,12 @@
+/*
+ *  UDPSend.h
+ *  MySender
+ *
+ *  Created by Helmut Hlavacs on 10.12.10.
+ *  Copyright 2010 __MyCompanyName__. All rights reserved.
+ *
+ */
+
 extern "C"
 {
 #include <stdlib.h>
@@ -10,10 +19,12 @@ extern "C"
 #include <arpa/inet.h>
 #include <string.h>
 }
+#include <iostream>
+
 #define min(x, y) ((x) <= (y) ? (x) : (y))
 #define max(x, y) ((x) >= (y) ? (x) : (y))
 
-class UDPSender
+class UDPSend
 {
 
 public:
@@ -21,8 +32,8 @@ public:
     struct sockaddr_in addr;
     unsigned long packetnum;
 
-    UDPSender();
-    ~UDPSender()
+    UDPSend();
+    ~UDPSend()
     {
         if (sock)
             close(sock);
@@ -40,17 +51,17 @@ typedef struct RTHeader
     unsigned char fragnum;
 } RTHeader_t;
 
-UDPSender::UDPSender()
+UDPSend::UDPSend()
 {
     packetnum = 0;
     sock = 0;
 }
 
-void UDPSender::init(char *address, int port)
+void UDPSend::init(char *address, int port)
 {
     if (sock)
     {
-        closeSock();
+        close(sock);
     }
 
     sock = socket(PF_INET, SOCK_DGRAM, 0);
@@ -60,7 +71,7 @@ void UDPSender::init(char *address, int port)
     addr.sin_port = htons(port);
 }
 
-int UDPSender::send(char *buffer, int len)
+int UDPSend::send(char *buffer, int len)
 {
     char sendbuffer[65000];
 
@@ -94,8 +105,10 @@ int UDPSender::send(char *buffer, int len)
 
         if (ret == -1)
         {
+            std::cout << strerror(errno) << std::endl;
             return ret;
         }
+
         else
         {
             ret = ret - sizeof(header);
@@ -107,7 +120,7 @@ int UDPSender::send(char *buffer, int len)
     return bytes;
 }
 
-void UDPSender::closeSock()
+void UDPSend::closeSock()
 {
     close(sock);
     sock = 0;

@@ -28,6 +28,7 @@ namespace game
         void setupContexts(size_t width, size_t height);
         void saveImageBufferToFile(const uint8_t *dataImage, FILE *f, int position);
         AVFrame *encodeImageToFrame(const uint8_t *dataImage);
+        AVPacket *frameToPacket(AVFrame *frame);
         void cleanupContexts();
     };
 
@@ -102,6 +103,38 @@ namespace game
             av_packet_unref(pkt);
             av_frame_free(&frame);
         }
+    }
+
+    AVPacket *Encoder::frameToPacket(AVFrame *frame)
+    {
+        auto pkt = av_packet_alloc();
+        if (!pkt)
+        {
+            fprintf(stderr, "Cannot alloc packet\n");
+            exit(1);
+        }
+
+        auto ret = avcodec_send_frame(m_avcodec_context, frame);
+
+        if (ret < 0)
+        {
+            fprintf(stderr, "error sending a frame for encoding\n");
+            exit(1);
+        }
+
+        while (ret >= 0)
+        {
+            int ret = avcodec_receive_packet(m_avcodec_context, pkt);
+            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+                return nullptr;
+            else if (ret < 0)
+            {
+                fprintf(stderr, "error during encoding\n");
+                exit(1);
+            }
+        }
+        av_packet_unref(pkt);
+        return pkt;
     }
 
     void Encoder::cleanupContexts()

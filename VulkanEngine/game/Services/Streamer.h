@@ -1,5 +1,5 @@
 #include "Encoder.h"
-#include "UDPSender.h"
+#include "UDPSend.h"
 #include <iostream>
 
 #define PORT 5000
@@ -10,7 +10,7 @@ namespace game
     {
     private:
         Encoder m_encoder;
-        UDPSender m_udpSender;
+        UDPSend m_udpSender;
 
     public:
         Streamer(/* args */);
@@ -21,21 +21,25 @@ namespace game
     Streamer::Streamer()
     {
         m_encoder = Encoder();
-        m_udpSender = UDPSender();
+        m_udpSender = UDPSend();
         m_udpSender.init("127.0.0.1", PORT);
     }
 
     Streamer::~Streamer()
     {
+        m_udpSender.closeSock();
     }
 
     void Streamer::encodeAndSend(const uint8_t *dataImage, int width, int height)
     {
-        char *message = "Hello World!";
+        char *message = "Hello test";
         m_encoder.setupContexts(width, height);
         auto frame = m_encoder.encodeImageToFrame(dataImage);
+        // auto packet = m_encoder.frameToPacket(frame);
         m_udpSender.send(message, sizeof(message));
-        m_udpSender.closeSock();
+        // m_udpSender.send((char *)packet->data, packet->size);
+        // av_packet_unref(packet);
+        // av_frame_free(&frame);
         m_encoder.cleanupContexts();
     }
 }
