@@ -50,7 +50,7 @@ void UDPSender::init(char *address, int port)
 {
     if (sock)
     {
-        close(sock);
+        closeSock();
     }
 
     sock = socket(PF_INET, SOCK_DGRAM, 0);
