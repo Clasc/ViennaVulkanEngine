@@ -31,16 +31,18 @@ namespace game
 
     void Streamer::encodeAndSend(const uint8_t *dataImage, int width, int height)
     {
-        char *message = "Hello test";
         m_encoder.setupContexts(width, height);
-        //auto frame = m_encoder.encodeImageToFrame(dataImage);
-        // auto packet = m_encoder.frameToPacket(frame);
+        auto frame = m_encoder.encodeImageToFrame(dataImage);
+        auto yuvFrame = m_encoder.convertRgbToYuv(frame);
+        auto packet = m_encoder.frameToPacket(yuvFrame);
+
         m_udpSender.init("127.0.0.1", PORT);
-        m_udpSender.send(message, sizeof(message));
+        m_udpSender.send((char *)packet->data, packet->size);
         m_udpSender.closeSock();
-        // m_udpSender.send((char *)packet->data, packet->size);
-        // av_packet_unref(packet);
-        // av_frame_free(&frame);
+
+        av_frame_free(&frame);
+        av_packet_unref(packet);
+        av_frame_free(&yuvFrame);
         m_encoder.cleanupContexts();
     }
 }

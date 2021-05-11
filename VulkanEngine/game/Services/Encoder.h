@@ -29,6 +29,7 @@ namespace game
         void saveImageBufferToFile(const uint8_t *dataImage, FILE *f, int position);
         AVFrame *encodeImageToFrame(const uint8_t *dataImage);
         AVPacket *frameToPacket(AVFrame *frame);
+        AVFrame *convertRgbToYuv(AVFrame *frame);
         void cleanupContexts();
     };
 
@@ -124,6 +125,7 @@ namespace game
 
         while (ret >= 0)
         {
+
             int ret = avcodec_receive_packet(m_avcodec_context, pkt);
             if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
                 return nullptr;
@@ -133,6 +135,7 @@ namespace game
                 exit(1);
             }
         }
+
         av_packet_unref(pkt);
         return pkt;
     }
@@ -145,6 +148,7 @@ namespace game
 
     AVFrame *Encoder::encodeImageToFrame(const uint8_t *dataImage)
     {
+
         auto frame = av_frame_alloc();
         frame->format = AV_PIX_FMT_RGBA;
         frame->width = m_avcodec_context->width;
@@ -201,6 +205,32 @@ namespace game
 
         frame->pts = position;
         encode(frame, pkt, f);
+    }
+
+    AVFrame *Encoder::convertRgbToYuv(AVFrame *rgbFrame)
+    {
+        printf("5");
+        auto result = av_frame_alloc();
+        result->format = m_avcodec_context->pix_fmt;
+        result->width = m_avcodec_context->width;
+        result->height = m_avcodec_context->height;
+
+        if (av_frame_get_buffer(result, 32) < 0)
+        {
+            fprintf(stderr, "could not alloc the frame data\n");
+            exit(1);
+        }
+
+        if (av_frame_make_writable(result) < 0)
+        {
+            fprintf(stderr, "Cannot make frame writeable\n");
+            exit(1);
+        }
+
+        sws_scale(m_img_convert_ctx, (const uint8_t **)rgbFrame->data, rgbFrame->linesize, 0, m_avcodec_context->height,
+                  result->data, result->linesize);
+
+        return result;
     }
 }
 #endif
