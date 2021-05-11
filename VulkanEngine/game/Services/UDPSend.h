@@ -65,7 +65,6 @@ void UDPSend::init(char *address, int port)
     }
 
     sock = socket(PF_INET, SOCK_DGRAM, 0);
-
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr(address);
     addr.sin_port = htons(port);
@@ -105,7 +104,7 @@ int UDPSend::send(char *buffer, int len)
 
         if (ret == -1)
         {
-            std::cout << strerror(errno) << std::endl;
+            std::cout << strerror(errno) << sock << std::endl;
             return ret;
         }
 
