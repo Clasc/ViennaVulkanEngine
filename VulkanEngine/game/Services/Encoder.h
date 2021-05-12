@@ -30,7 +30,7 @@ namespace game
     public:
         Encoder();
         ~Encoder();
-        void encode(AVFrame *frame, AVPacket *pkt, FILE *outfile);
+        void encode(AVFrame *frame, std::function<void(AVPacket *packet)> callback);
         void setupContexts(size_t width, size_t height);
         void saveImageBufferToFile(const uint8_t *dataImage, FILE *f, int position);
         AVFrame *getFrameFromData(const uint8_t *dataImage, int position);
@@ -83,8 +83,16 @@ namespace game
         }
     }
 
-    void Encoder::encode(AVFrame *frame, AVPacket *pkt, FILE *outfile)
+    void Encoder::encode(AVFrame *frame, std::function<void(AVPacket *packet)> callback)
     {
+
+        auto pkt = av_packet_alloc();
+        if (!pkt)
+        {
+            fprintf(stderr, "Cannot alloc packet\n");
+            exit(1);
+        }
+
         int ret;
 
         // send the frame to the encoder */
@@ -106,11 +114,11 @@ namespace game
                 exit(1);
             }
 
-            //printf("encoded frame %lld (size=%5d)\n", pkt->pts, pkt->size);
-            fwrite(pkt->data, 1, pkt->size, outfile);
+            callback(pkt);
             av_packet_unref(pkt);
-            av_frame_free(&frame);
         }
+
+        av_frame_free(&frame);
     }
 
     void Encoder::encodeFrameAndSend(AVFrame *frame)
@@ -190,13 +198,9 @@ namespace game
         auto rgbFrame = getFrameFromData(dataImage, position);
         auto frame = convertRgbToYuv(rgbFrame);
 
-        auto pkt = av_packet_alloc();
-        if (!pkt)
-        {
-            fprintf(stderr, "Cannot alloc packet\n");
-            exit(1);
-        }
-        encode(frame, pkt, f);
+        encode(frame, [f](AVPacket *pkt) {
+            fwrite(pkt->data, 1, pkt->size, f);
+        });
     }
 
     AVFrame *Encoder::convertRgbToYuv(AVFrame *rgbFrame)
