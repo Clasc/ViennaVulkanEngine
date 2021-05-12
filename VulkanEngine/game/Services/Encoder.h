@@ -196,11 +196,6 @@ namespace game
             fprintf(stderr, "Cannot alloc packet\n");
             exit(1);
         }
-
-        sws_scale(m_img_convert_ctx, (const uint8_t **)rgbFrame->data, rgbFrame->linesize, 0, m_avcodec_context->height,
-                  frame->data, frame->linesize);
-
-        frame->pts = position;
         encode(frame, pkt, f);
     }
 
