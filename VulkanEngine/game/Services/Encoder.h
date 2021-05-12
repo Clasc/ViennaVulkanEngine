@@ -83,6 +83,16 @@ namespace game
         }
     }
 
+    void Encoder::encodeFrameAndSend(AVFrame *frame)
+    {
+        encode(frame, [&](AVPacket *pkt) {
+            fprintf(stderr, "sending encoded frame...\n");
+            m_udpSender.init(ADDRESS, PORT);
+            m_udpSender.send((char *)pkt->data, pkt->size);
+            m_udpSender.closeSock();
+        });
+    }
+
     void Encoder::encode(AVFrame *frame, std::function<void(AVPacket *packet)> callback)
     {
 
@@ -118,45 +128,6 @@ namespace game
             av_packet_unref(pkt);
         }
 
-        av_frame_free(&frame);
-    }
-
-    void Encoder::encodeFrameAndSend(AVFrame *frame)
-    {
-        auto pkt = av_packet_alloc();
-        if (!pkt)
-        {
-            fprintf(stderr, "Cannot alloc packet\n");
-            exit(1);
-        }
-
-        int ret;
-
-        // send the frame to the encoder */
-        ret = avcodec_send_frame(m_avcodec_context, frame);
-        if (ret < 0)
-        {
-            fprintf(stderr, "error sending a frame for encoding\n");
-            exit(1);
-        }
-
-        while (ret >= 0)
-        {
-            int ret = avcodec_receive_packet(m_avcodec_context, pkt);
-            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
-                return;
-            else if (ret < 0)
-            {
-                fprintf(stderr, "error during encoding\n");
-                exit(1);
-            }
-
-            fprintf(stderr, "sending encoded frame...\n");
-            m_udpSender.init(ADDRESS, PORT);
-            m_udpSender.send((char *)pkt->data, pkt->size);
-            m_udpSender.closeSock();
-            av_packet_unref(pkt);
-        }
         av_frame_free(&frame);
     }
 

@@ -37,7 +37,7 @@ namespace game
             //VEEngine::registerEventListeners();
             registerEventListener(new PlayerController(), {veEvent::VE_EVENT_KEYBOARD, veEvent::VE_EVENT_FRAME_STARTED});
             registerEventListener(new CollisionListener(), {veEvent::VE_EVENT_FRAME_STARTED});
-            //registerEventListener(new RecorderListener(), {veEvent::VE_EVENT_FRAME_ENDED, veEvent::VE_EVENT_KEYBOARD});
+            registerEventListener(new RecorderListener(), {veEvent::VE_EVENT_FRAME_ENDED, veEvent::VE_EVENT_KEYBOARD});
             registerEventListener(new StreamerListener(), {veEvent::VE_EVENT_FRAME_ENDED});
         };
 
