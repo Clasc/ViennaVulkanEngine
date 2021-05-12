@@ -24,6 +24,9 @@ extern "C"
 #define min(x, y) ((x) <= (y) ? (x) : (y))
 #define max(x, y) ((x) >= (y) ? (x) : (y))
 
+#ifndef UDPSEND_H
+#define UDPSEND_H
+
 class UDPSend
 {
 
@@ -124,3 +127,4 @@ void UDPSend::closeSock()
     close(sock);
     sock = 0;
 }
+#endif
