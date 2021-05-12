@@ -29,14 +29,15 @@ namespace game
 
     StreamerListener::~StreamerListener()
     {
+        m_streamer.cleanup();
     }
 
     void StreamerListener::onFrameEnded(veEvent event)
     {
-
         VkExtent2D extent = getWindowPointer()->getExtent();
         uint32_t imageSize = extent.width * extent.height * 4;
         VkImage image = getRendererPointer()->getSwapChainImage();
+        m_streamer.setupOnce(extent.width, extent.height);
 
         uint8_t *dataImage = new uint8_t[imageSize];
 
