@@ -7,11 +7,13 @@ namespace game
     {
     private:
         Encoder m_encoder;
+        bool isSetup = false;
 
     public:
         Streamer(/* args */);
         ~Streamer();
-
+        void setupOnce(int width, int height);
+        void cleanup();
         void encodeAndSend(const uint8_t *dataImage, int width, int height, int position);
     };
 
@@ -24,18 +26,28 @@ namespace game
     {
     }
 
+    void Streamer::setupOnce(int width, int height)
+    {
+        if (!isSetup)
+        {
+            m_encoder.setupContexts(width, height);
+            isSetup = true;
+        }
+    }
+
+    void Streamer::cleanup()
+    {
+        m_encoder.cleanupContexts();
+        isSetup = false;
+    }
+
     void Streamer::encodeAndSend(const uint8_t *dataImage, int width, int height, int position)
     {
-        m_encoder.setupContexts(width, height);
         auto frame = m_encoder.getFrameFromData(dataImage, position);
         auto yuvFrame = m_encoder.convertRgbToYuv(frame);
         m_encoder.encodeFrameAndSend(yuvFrame);
 
-        // m_udpSender.send("Hello", 8);
-
         av_frame_free(&frame);
-        // av_packet_unref(packet);
         av_frame_free(&yuvFrame);
-        m_encoder.cleanupContexts();
     }
 }
