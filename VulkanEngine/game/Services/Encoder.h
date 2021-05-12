@@ -6,8 +6,13 @@ extern "C"
 #include "libswscale/swscale.h"
 }
 
+#include "UDPSend.h"
+
 #ifndef ENCODER
 #define ENCODER
+
+#define PORT 5000
+#define ADDRESS "127.0.0.1"
 
 namespace game
 {
@@ -17,6 +22,7 @@ namespace game
         static const size_t BIT_RATE = 4000000;
         static const AVCodecID CODEC = AV_CODEC_ID_MPEG2VIDEO;
 
+        UDPSend m_udpSender;
         AVCodecContext *m_avcodec_context;
         SwsContext *m_img_convert_ctx;
         AVCodec *m_codec;
@@ -28,14 +34,14 @@ namespace game
         void setupContexts(size_t width, size_t height);
         void saveImageBufferToFile(const uint8_t *dataImage, FILE *f, int position);
         AVFrame *getFrameFromData(const uint8_t *dataImage, int position);
-        AVPacket *frameToPacket(AVFrame *frame);
+        void encodeFrameAndSend(AVFrame *frame);
         AVFrame *convertRgbToYuv(AVFrame *frame);
-        AVPacket *convertFrameToMPEG(const uint8_t *dataImage, int position);
         void cleanupContexts();
     };
 
     Encoder::Encoder()
     {
+        m_udpSender = UDPSend();
     }
 
     Encoder::~Encoder()
@@ -107,7 +113,7 @@ namespace game
         }
     }
 
-    AVPacket *Encoder::frameToPacket(AVFrame *frame)
+    void Encoder::encodeFrameAndSend(AVFrame *frame)
     {
         auto pkt = av_packet_alloc();
         if (!pkt)
@@ -126,11 +132,12 @@ namespace game
 
         while (ret >= 0)
         {
+            m_udpSender.init(ADDRESS, PORT);
 
             int ret = avcodec_receive_packet(m_avcodec_context, pkt);
             if (ret == AVERROR(EAGAIN))
             {
-                return nullptr;
+                return;
             }
             if (ret == AVERROR_EOF)
             {
@@ -141,10 +148,14 @@ namespace game
                 fprintf(stderr, "error during encoding\n");
                 exit(1);
             }
-        }
 
-        av_packet_unref(pkt);
-        return pkt;
+            fprintf(stderr, "sending encoded frame...\n");
+            m_udpSender.send((char *)pkt->data, pkt->size);
+
+            av_packet_unref(pkt);
+
+            m_udpSender.closeSock();
+        }
     }
 
     void Encoder::cleanupContexts()
@@ -161,7 +172,6 @@ namespace game
         frame->width = m_avcodec_context->width;
         frame->height = m_avcodec_context->height;
 
-        if (av_frame_get_buffer(frame, 32) < 0)
         {
             fprintf(stderr, "could not alloc the frame data\n");
             exit(1);
@@ -182,24 +192,8 @@ namespace game
     {
         fflush(stdout);
 
-        auto frame = av_frame_alloc();
-        frame->format = m_avcodec_context->pix_fmt;
-        frame->width = m_avcodec_context->width;
-        frame->height = m_avcodec_context->height;
-
         auto rgbFrame = getFrameFromData(dataImage, position);
-
-        if (av_frame_get_buffer(frame, 32) < 0)
-        {
-            fprintf(stderr, "could not alloc the frame data\n");
-            exit(1);
-        }
-
-        if (av_frame_make_writable(frame) < 0)
-        {
-            fprintf(stderr, "Cannot make frame writeable\n");
-            exit(1);
-        }
+        auto frame = convertRgbToYuv(rgbFrame);
 
         auto pkt = av_packet_alloc();
         if (!pkt)
