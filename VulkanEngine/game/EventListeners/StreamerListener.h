@@ -14,6 +14,7 @@ namespace game
     private:
         inline static const std::string NAME = "StreamerListener";
         Streamer m_streamer;
+        int m_frames_catpured = 0;
 
     public:
         StreamerListener();
@@ -47,7 +48,7 @@ namespace game
                                           VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                           dataImage, extent.width, extent.height, imageSize);
 
-        m_streamer.encodeAndSend(dataImage, extent.width, extent.height);
+        m_streamer.encodeAndSend(dataImage, extent.width, extent.height, m_frames_catpured++);
     }
 }
 #endif

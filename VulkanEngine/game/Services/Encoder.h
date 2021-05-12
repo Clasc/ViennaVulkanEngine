@@ -27,9 +27,10 @@ namespace game
         void encode(AVFrame *frame, AVPacket *pkt, FILE *outfile);
         void setupContexts(size_t width, size_t height);
         void saveImageBufferToFile(const uint8_t *dataImage, FILE *f, int position);
-        AVFrame *encodeImageToFrame(const uint8_t *dataImage);
+        AVFrame *getFrameFromData(const uint8_t *dataImage, int position);
         AVPacket *frameToPacket(AVFrame *frame);
         AVFrame *convertRgbToYuv(AVFrame *frame);
+        AVPacket *convertFrameToMPEG(const uint8_t *dataImage, int position);
         void cleanupContexts();
     };
 
@@ -127,9 +128,15 @@ namespace game
         {
 
             int ret = avcodec_receive_packet(m_avcodec_context, pkt);
-            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+            if (ret == AVERROR(EAGAIN))
+            {
                 return nullptr;
-            else if (ret < 0)
+            }
+            if (ret == AVERROR_EOF)
+            {
+                printf("error receiving packet! AVERROR EOF \n");
+            }
+            if (ret < 0)
             {
                 fprintf(stderr, "error during encoding\n");
                 exit(1);
@@ -146,7 +153,7 @@ namespace game
         sws_freeContext(m_img_convert_ctx);
     }
 
-    AVFrame *Encoder::encodeImageToFrame(const uint8_t *dataImage)
+    AVFrame *Encoder::getFrameFromData(const uint8_t *dataImage, int position)
     {
 
         auto frame = av_frame_alloc();
@@ -167,6 +174,7 @@ namespace game
         }
 
         av_image_fill_arrays(frame->data, frame->linesize, dataImage, AV_PIX_FMT_RGBA, m_avcodec_context->width, m_avcodec_context->height, 1);
+        frame->pts = position;
         return frame;
     }
 
@@ -179,7 +187,7 @@ namespace game
         frame->width = m_avcodec_context->width;
         frame->height = m_avcodec_context->height;
 
-        auto rgbFrame = encodeImageToFrame(dataImage);
+        auto rgbFrame = getFrameFromData(dataImage, position);
 
         if (av_frame_get_buffer(frame, 32) < 0)
         {
@@ -209,7 +217,6 @@ namespace game
 
     AVFrame *Encoder::convertRgbToYuv(AVFrame *rgbFrame)
     {
-        printf("5");
         auto result = av_frame_alloc();
         result->format = m_avcodec_context->pix_fmt;
         result->width = m_avcodec_context->width;
@@ -229,6 +236,8 @@ namespace game
 
         sws_scale(m_img_convert_ctx, (const uint8_t **)rgbFrame->data, rgbFrame->linesize, 0, m_avcodec_context->height,
                   result->data, result->linesize);
+
+        result->pts = rgbFrame->pts;
 
         return result;
     }
