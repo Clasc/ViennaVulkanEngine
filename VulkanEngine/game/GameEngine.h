@@ -6,6 +6,7 @@
 #include "EventListeners/PlayerController.h"
 #include "EventListeners/CollisionListener.h"
 #include "EventListeners/RecorderListener.h"
+#include "EventListeners/StreamerListener.h"
 
 using namespace ve;
 
@@ -37,6 +38,7 @@ namespace game
             registerEventListener(new PlayerController(), {veEvent::VE_EVENT_KEYBOARD, veEvent::VE_EVENT_FRAME_STARTED});
             registerEventListener(new CollisionListener(), {veEvent::VE_EVENT_FRAME_STARTED});
             registerEventListener(new RecorderListener(), {veEvent::VE_EVENT_FRAME_ENDED, veEvent::VE_EVENT_KEYBOARD});
+            registerEventListener(new StreamerListener(), {veEvent::VE_EVENT_FRAME_ENDED});
         };
 
         void loadLevel(uint32_t numLevel = 1)
