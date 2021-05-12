@@ -122,8 +122,10 @@ namespace game
             exit(1);
         }
 
-        auto ret = avcodec_send_frame(m_avcodec_context, frame);
+        int ret;
 
+        // send the frame to the encoder */
+        ret = avcodec_send_frame(m_avcodec_context, frame);
         if (ret < 0)
         {
             fprintf(stderr, "error sending a frame for encoding\n");
@@ -132,30 +134,22 @@ namespace game
 
         while (ret >= 0)
         {
-            m_udpSender.init(ADDRESS, PORT);
-
             int ret = avcodec_receive_packet(m_avcodec_context, pkt);
-            if (ret == AVERROR(EAGAIN))
-            {
+            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
                 return;
-            }
-            if (ret == AVERROR_EOF)
-            {
-                printf("error receiving packet! AVERROR EOF \n");
-            }
-            if (ret < 0)
+            else if (ret < 0)
             {
                 fprintf(stderr, "error during encoding\n");
                 exit(1);
             }
 
             fprintf(stderr, "sending encoded frame...\n");
+            m_udpSender.init(ADDRESS, PORT);
             m_udpSender.send((char *)pkt->data, pkt->size);
-
-            av_packet_unref(pkt);
-
             m_udpSender.closeSock();
+            av_packet_unref(pkt);
         }
+        av_frame_free(&frame);
     }
 
     void Encoder::cleanupContexts()
@@ -172,6 +166,7 @@ namespace game
         frame->width = m_avcodec_context->width;
         frame->height = m_avcodec_context->height;
 
+        if (av_frame_get_buffer(frame, 32) < 0)
         {
             fprintf(stderr, "could not alloc the frame data\n");
             exit(1);
