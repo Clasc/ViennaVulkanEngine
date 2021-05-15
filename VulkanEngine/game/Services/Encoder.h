@@ -11,9 +11,6 @@ extern "C"
 #ifndef ENCODER
 #define ENCODER
 
-#define PORT 5000
-#define ADDRESS "127.0.0.1"
-
 namespace game
 {
     class Encoder
@@ -21,8 +18,6 @@ namespace game
     private:
         static const size_t BIT_RATE = 4000000;
         static const AVCodecID CODEC = AV_CODEC_ID_MPEG2VIDEO;
-
-        UDPSend m_udpSender;
         AVCodecContext *m_avcodec_context;
         SwsContext *m_img_convert_ctx;
         AVCodec *m_codec;
@@ -41,7 +36,6 @@ namespace game
 
     Encoder::Encoder()
     {
-        m_udpSender = UDPSend();
     }
 
     Encoder::~Encoder()
@@ -81,16 +75,6 @@ namespace game
             fprintf(stderr, "error creating swsContext");
             exit(1);
         }
-    }
-
-    void Encoder::encodeFrameAndSend(AVFrame *frame)
-    {
-        encode(frame, [&](AVPacket *pkt) {
-            fprintf(stderr, "sending encoded frame...\n");
-            m_udpSender.init(ADDRESS, PORT);
-            m_udpSender.send((char *)pkt->data, pkt->size);
-            m_udpSender.closeSock();
-        });
     }
 
     void Encoder::encode(AVFrame *frame, std::function<void(AVPacket *packet)> callback)

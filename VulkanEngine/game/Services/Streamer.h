@@ -1,6 +1,9 @@
 #include "Encoder.h"
 #include <iostream>
 
+#define PORT 5000
+#define ADDRESS "127.0.0.1"
+
 namespace game
 {
     class Streamer
@@ -8,6 +11,7 @@ namespace game
     private:
         Encoder m_encoder;
         bool isSetup = false;
+        UDPSend m_udpSender;
 
     public:
         Streamer(/* args */);
@@ -20,6 +24,7 @@ namespace game
     Streamer::Streamer()
     {
         m_encoder = Encoder();
+        m_udpSender = UDPSend();
     }
 
     Streamer::~Streamer()
@@ -45,7 +50,13 @@ namespace game
     {
         auto frame = m_encoder.getFrameFromData(dataImage, position);
         auto yuvFrame = m_encoder.convertRgbToYuv(frame);
-        m_encoder.encodeFrameAndSend(yuvFrame);
+
+        m_encoder.encode(yuvFrame, [&](AVPacket *pkt) {
+            fprintf(stderr, "sending encoded frame...\n");
+            m_udpSender.init(ADDRESS, PORT);
+            m_udpSender.send((char *)pkt->data, pkt->size);
+            m_udpSender.closeSock();
+        });
 
         av_frame_free(&frame);
         av_frame_free(&yuvFrame);
