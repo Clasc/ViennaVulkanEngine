@@ -31,11 +31,8 @@ add_executable(
         ../external/imgui/imgui_tables.cpp
         ../external/imgui/imgui_widgets.cpp
         ../external/imgui/imgui_impl_glfw.cpp
+        ../external/imgui/imgui_impl_vulkan.cpp
         ../external/imgui/imgui_draw.cpp
 )
 
 target_link_libraries(VulkanEngine vulkan glfw assimp ffmpeg)
-
-
-
-set(CMAKE_CXX_STANDARD 14)

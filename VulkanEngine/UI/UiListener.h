@@ -10,6 +10,7 @@ namespace ve
     {
     private:
         inline static const std::string NAME = "UiListener";
+        bool isFirst = true;
         EngineUI ui;
 
     public:
@@ -20,6 +21,7 @@ namespace ve
 
     UiListener::UiListener() : VEEventListener(NAME)
     {
+
         ui = EngineUI();
     }
 
@@ -29,7 +31,14 @@ namespace ve
 
     void UiListener::onFrameEnded(veEvent event)
     {
-        ui.render();
+        if (isFirst)
+        {
+            auto renderer = getRendererPointer();
+            ui.initWindow(480, 720);
+            printf("call imgui render %p \n ", renderer);
+            ui.render();
+            isFirst = false;
+        }
     }
 } // namespace ve
 #endif
