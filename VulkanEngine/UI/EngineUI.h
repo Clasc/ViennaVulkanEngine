@@ -52,28 +52,27 @@ namespace ui
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
 
-        printf("1\n");
-
         // Setup Platform/Renderer bindings
         ImGui_ImplGlfw_InitForVulkan(window, true);
-        printf("2\n");
-
-        printf("3\n");
-        auto desc_pool = getRendererForwardPointer()->getDescriptorPool();
-        printf("4\n");
-
         ImGui_ImplVulkan_InitInfo init_info = {};
         init_info.Instance = getEnginePointer()->getInstance();
         init_info.PhysicalDevice = getRendererForwardPointer()->getPhysicalDevice();
         init_info.Device = getRendererForwardPointer()->getDevice();
         init_info.QueueFamily = 0;
         init_info.Queue = getRendererForwardPointer()->getGraphicsQueue();
+        init_info.Allocator = nullptr;
         init_info.PipelineCache = VK_NULL_HANDLE;
         init_info.MinImageCount = 2;
         init_info.ImageCount = 10;
-        init_info.DescriptorPool = desc_pool;
+        init_info.DescriptorPool = getRendererForwardPointer()->getDescriptorPool();
         init_info.CheckVkResultFn = check_vk_result;
-        printf("5\n");
+
+        VkRenderPass renderpass;
+        vh::vhRenderCreateRenderPass(getRendererForwardPointer()->getDevice(),
+                                     getRendererForwardPointer()->getSwapChainImageFormat(),
+                                     getRendererForwardPointer()->getDepthMap()->m_format,
+                                     VK_ATTACHMENT_LOAD_OP_LOAD, &renderpass);
+        ImGui_ImplVulkan_Init(&init_info, renderpass);
 
         VkAttachmentDescription attachment = {};
         attachment.format = getRendererForwardPointer()->getSwapChainImageFormat();
@@ -84,14 +83,6 @@ namespace ui
         attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         attachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        printf("6\n");
-        VkRenderPass renderpass;
-        vh::vhRenderCreateRenderPass(getRendererForwardPointer()->getDevice(), getRendererForwardPointer()->getSwapChainImageFormat(), getRendererForwardPointer()->getDepthMap()->m_format, VK_ATTACHMENT_LOAD_OP_LOAD, &renderpass);
-        printf("7\n");
-        ImGui_ImplVulkan_Init(&init_info, renderpass);
-        printf("8\n");
-        ImGui_ImplGlfw_InitForVulkan(window, true);
-        printf("9\n");
 
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
