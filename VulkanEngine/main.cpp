@@ -6,7 +6,6 @@
 */
 
 #include "VEInclude.h"
-#include "MyVulkanEngine.h"
 #include "game/GameEngine.h"
 
 namespace ve
