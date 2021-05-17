@@ -8,7 +8,6 @@
 #ifndef VEINCLUDE_H
 #define VEINCLUDE_H
 
-
 #include "VHHelper.h"
 
 #include "VENamedClass.h"
@@ -28,25 +27,23 @@
 #include "VESubrenderFW_Skyplane.h"
 #include "VESubrenderFW_D.h"
 //#include "VESubrenderFW_DN.h"
-//#include "VESubrenderFW_Nuklear.h"
+#include "VESubrenderFW_Nuklear.h"
 #include "VESubrenderFW_Shadow.h"
 #include "VERenderer.h"
 #include "VERendererForward.h"
 
-
 //use this macro to check the function result, if its not VK_SUCCESS then return the error
-#define VECHECKRESULT(x) { \
-		VkResult retval = (x); \
-		assert (retval == VK_SUCCESS); \
+#define VECHECKRESULT(x)              \
+	{                                 \
+		VkResult retval = (x);        \
+		assert(retval == VK_SUCCESS); \
 	}
 
-
 //use this macro to check the function result, if its not VK_SUCCESS then return the error
-#define VECHECKPOINTER(x) { \
-		void* pointer = (x); \
-		assert (pointer!=nullptr); \
+#define VECHECKPOINTER(x)           \
+	{                               \
+		void *pointer = (x);        \
+		assert(pointer != nullptr); \
 	}
-
-
 
 #endif
