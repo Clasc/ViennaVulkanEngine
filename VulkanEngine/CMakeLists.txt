@@ -9,7 +9,8 @@ include_directories(
         ../external/nuklear
 
         #brew headers
-        /usr/local/include      
+        /usr/local/include  
+  
 )
 
 add_subdirectory(lib/ffmpeg)
@@ -22,14 +23,12 @@ link_directories(
 # add the executable
 file(GLOB SOURCE_FILES CONFIGURE_DEPENDS  "*.h" "*.cpp")
 
-
 add_executable(
         VulkanEngine
         ${SOURCE_FILES}
         ../external/threadpool/ThreadPool.h
         ../external/threadpool/ThreadPool.cpp
-)
-
+        )
 target_link_libraries(VulkanEngine vulkan glfw assimp ffmpeg)
 
 
