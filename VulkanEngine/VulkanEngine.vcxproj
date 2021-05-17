@@ -176,6 +176,18 @@
     <ClInclude Include="..\external\threadpool\ThreadPool.h" />
     <ClInclude Include="CLInclude.h" />
     <ClInclude Include="CLShape.h" />
+    <ClInclude Include="game\Const\EntityName.h" />
+    <ClInclude Include="game\EventListeners\CollisionListener.h" />
+    <ClInclude Include="game\EventListeners\PlayerController.h" />
+    <ClInclude Include="game\EventListeners\RecorderListener.h" />
+    <ClInclude Include="game\EventListeners\StreamerListener.h" />
+    <ClInclude Include="game\GameEngine.h" />
+    <ClInclude Include="game\GameIncludes.h" />
+    <ClInclude Include="game\Levels\LevelManager.h" />
+    <ClInclude Include="game\Services\Encoder.h" />
+    <ClInclude Include="game\Services\Streamer.h" />
+    <ClInclude Include="game\Services\UDPSend.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="VEEventListenerNuklear.h" />
     <ClInclude Include="VEEventListenerNuklearDebug.h" />
     <ClInclude Include="VEMaterial.h" />
@@ -237,9 +249,13 @@
     <ClCompile Include="VHMemory.cpp" />
     <ClCompile Include="VHRender.cpp" />
     <ClCompile Include="VHSwapchain.cpp" />
+    <ClCompile Include="VulkanFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="VHFunctions.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VulkanEngine.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
