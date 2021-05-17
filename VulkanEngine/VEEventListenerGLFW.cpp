@@ -43,6 +43,7 @@ namespace ve
 		glm::vec4 translate = glm::vec4(0.0, 0.0, 0.0, 1.0); //total translation
 		glm::vec4 rot4 = glm::vec4(1.0);					 //total rotation around the axes, is 4d !
 		float angle = 0.0;
+		float rotSpeed = 2.0;
 
 		VECamera *pCamera = getSceneManagerPointer()->getCamera();
 		VESceneNode *pParent = pCamera->getParent();
@@ -57,9 +58,11 @@ namespace ve
 			break;
 		case GLFW_KEY_W:
 			translate = pCamera->getTransform() * glm::vec4(0.0, 0.0, 1.0, 1.0); //forward
+			translate.y = 0.0f;
 			break;
 		case GLFW_KEY_S:
 			translate = pCamera->getTransform() * glm::vec4(0.0, 0.0, -1.0, 1.0); //back
+			translate.y = 0.0f;
 			break;
 		case GLFW_KEY_Q:
 			translate = glm::vec4(0.0, -1.0, 0.0, 1.0); //down
@@ -68,19 +71,19 @@ namespace ve
 			translate = glm::vec4(0.0, 1.0, 0.0, 1.0); //up
 			break;
 		case GLFW_KEY_LEFT: //yaw rotation is already in parent space
-			angle = (float)event.dt * -1.0f;
+			angle = rotSpeed * (float)event.dt * -1.0f;
 			rot4 = glm::vec4(0.0, 1.0, 0.0, 1.0);
 			break;
 		case GLFW_KEY_RIGHT: //yaw rotation is already in parent space
-			angle = (float)event.dt * 1.0f;
+			angle = rotSpeed * (float)event.dt * 1.0f;
 			rot4 = glm::vec4(0.0, 1.0, 0.0, 1.0);
 			break;
 		case GLFW_KEY_UP:													//pitch rotation is in cam/local space
-			angle = (float)event.dt * 1.0f;									//pitch angle
+			angle = rotSpeed * (float)event.dt * 1.0f;						//pitch angle
 			rot4 = pCamera->getTransform() * glm::vec4(1.0, 0.0, 0.0, 1.0); //x axis from local to parent space!
 			break;
 		case GLFW_KEY_DOWN:													//pitch rotation is in cam/local space
-			angle = (float)event.dt * -1.0f;								//pitch angle
+			angle = rotSpeed * (float)event.dt * -1.0f;						//pitch angle
 			rot4 = pCamera->getTransform() * glm::vec4(1.0, 0.0, 0.0, 1.0); //x axis from local to parent space!
 			break;
 
@@ -283,20 +286,20 @@ namespace ve
 			VkImage image = map->m_image;
 
 			float *dataImage = new float[imageSize];
-			/*gli::*/ uint8_t *dataImage2 = new /*gli::*/ uint8_t[imageSize];
+			/*gli::byte*/ unsigned char *dataImage2 = new /*gli::byte*/ unsigned char[imageSize];
 
 			vh::vhBufCopyImageToHost(getRendererPointer()->getDevice(),
 									 getRendererPointer()->getVmaAllocator(),
 									 getRendererPointer()->getGraphicsQueue(),
 									 getRendererPointer()->getCommandPool(),
 									 image, map->m_format, VK_IMAGE_ASPECT_DEPTH_BIT, layout,
-									 (/*gli::*/ uint8_t *)dataImage, extent.width, extent.height, imageSize * 4);
+									 (/*gli::byte*/ unsigned char *)dataImage, extent.width, extent.height, imageSize * 4);
 
 			for (uint32_t v = 0; v < extent.height; v++)
 			{
 				for (uint32_t u = 0; u < extent.width; u++)
 				{
-					dataImage2[v * extent.width + u] = (/*gli::*/ uint8_t)((dataImage[v * extent.width + u] - 0.5) * 256.0f * 2.0f);
+					dataImage2[v * extent.width + u] = (/*gli::byte*/ unsigned char)((dataImage[v * extent.width + u] - 0.5) * 256.0f * 2.0f);
 					//std::cout << dataImage[v*extent.width + u] << " ";
 				}
 			}

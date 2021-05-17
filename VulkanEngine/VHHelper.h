@@ -42,7 +42,6 @@
 #include "vulkan/vulkan.h"
 #include "VHFunctions.h"
 
-#define VMA_STATIC_VULKAN_FUNCTIONS 1
 #include "vk_mem_alloc.h"
 
 #include <stb_image.h>
@@ -58,7 +57,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-
+#include <irrKlang.h>
 
 namespace vh {
 
@@ -263,12 +262,12 @@ namespace vh {
 											VkQueue graphicsQueue, 	VkCommandPool commandPool, 
 											VkImage image, VkFormat format,
 											VkImageAspectFlagBits aspect, VkImageLayout layout,
-                                           /*gli::*/uint8_t *bufferData, 	uint32_t width, uint32_t height, uint32_t imageSize);
+											/*gli::byte*/ unsigned char*bufferData, 	uint32_t width, uint32_t height, uint32_t imageSize);
 	VkResult vhBufCopyImageToHost(	VkDevice device, VmaAllocator allocator, 
 									VkQueue graphicsQueue, VkCommandPool commandPool,
 									VkImage image, VkFormat format, 
 									VkImageAspectFlagBits aspect, VkImageLayout layout,
-                                  /*gli::*/uint8_t *bufferData, uint32_t width, uint32_t height, uint32_t imageSize);
+									/*gli::byte*/unsigned char*bufferData, uint32_t width, uint32_t height, uint32_t imageSize);
 	VkResult vhBufCreateVertexBuffer(VkDevice device, VmaAllocator allocator,
 									VkQueue graphicsQueue, VkCommandPool commandPool,
 									std::vector<vh::vhVertex> &vertices,
@@ -355,7 +354,7 @@ namespace vh {
 	//--------------------------------------------------------------------------------------------------------------------------------
 	//memory
 	uint32_t vhMemFindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
-	VkResult vhMemCreateVMAAllocator(VkPhysicalDevice physicalDevice, VkDevice device, VmaAllocator &allocator);
+	VkResult vhMemCreateVMAAllocator(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device, VmaAllocator &allocator);
 	//Memory blocks
 	VkResult vhMemBlockListInit(VkDevice device, VmaAllocator allocator, 
 								VkDescriptorPool descriptorPool, VkDescriptorSetLayout descriptorLayout,

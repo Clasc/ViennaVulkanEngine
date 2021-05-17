@@ -5,10 +5,10 @@
 *
 */
 
-
 #include "VHHelper.h"
 
-namespace vh {
+namespace vh
+{
 
 	//-------------------------------------------------------------------------------------------------------
 	/**
@@ -23,8 +23,9 @@ namespace vh {
 	* \returns VK_SUCCESS or a Vulkan error code
 	*
 	*/
-	VkResult vhBufCreateBuffer(	VmaAllocator allocator, VkDeviceSize size, VkBufferUsageFlags usage,
-								VmaMemoryUsage vmaUsage, VkBuffer *buffer, VmaAllocation *allocation) {
+	VkResult vhBufCreateBuffer(VmaAllocator allocator, VkDeviceSize size, VkBufferUsageFlags usage,
+							   VmaMemoryUsage vmaUsage, VkBuffer *buffer, VmaAllocation *allocation)
+	{
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferInfo.size = size;
@@ -32,11 +33,10 @@ namespace vh {
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		VmaAllocationCreateInfo allocInfo = {};
-		allocInfo.usage = vmaUsage;					//VMA_MEMORY_USAGE_GPU_ONLY;
+		allocInfo.usage = vmaUsage; //VMA_MEMORY_USAGE_GPU_ONLY;
 
 		return vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, buffer, allocation, nullptr);
 	}
-
 
 	/**
 	* \brief Copy a buffer from a source buffer to a destination buffer
@@ -51,7 +51,8 @@ namespace vh {
 	*
 	*/
 	VkResult vhBufCopyBuffer(VkDevice device, VkQueue graphicsQueue, VkCommandPool commandPool,
-						VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+							 VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+	{
 
 		VkCommandBuffer commandBuffer = vh::vhCmdBeginSingleTimeCommands(device, commandPool);
 
@@ -76,9 +77,10 @@ namespace vh {
 	* \returns VK_SUCCESS or a Vulkan error code
 	*
 	*/
-	VkResult vhBufCreateImageView(	VkDevice device, VkImage image, VkFormat format, VkImageViewType viewtype,
-									uint32_t layerCount, 
-									VkImageAspectFlags aspectFlags, VkImageView *imageView) {
+	VkResult vhBufCreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageViewType viewtype,
+								  uint32_t layerCount,
+								  VkImageAspectFlags aspectFlags, VkImageView *imageView)
+	{
 		VkImageViewCreateInfo viewInfo = {};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		viewInfo.image = image;
@@ -93,7 +95,6 @@ namespace vh {
 		return vkCreateImageView(device, &viewInfo, nullptr, imageView);
 	}
 
-	
 	//-------------------------------------------------------------------------------------------------------
 
 	/**
@@ -111,23 +112,22 @@ namespace vh {
 	* \returns VK_SUCCESS or a Vulkan error code
 	*
 	*/
-	VkResult vhBufCreateDepthResources(	VkDevice device, VmaAllocator allocator, VkQueue graphicsQueue,
-									VkCommandPool commandPool, VkExtent2D extent, VkFormat depthFormat,
-									VkImage *depthImage, VmaAllocation *depthImageAllocation, VkImageView * depthImageView) {
+	VkResult vhBufCreateDepthResources(VkDevice device, VmaAllocator allocator, VkQueue graphicsQueue,
+									   VkCommandPool commandPool, VkExtent2D extent, VkFormat depthFormat,
+									   VkImage *depthImage, VmaAllocation *depthImageAllocation, VkImageView *depthImageView)
+	{
 
-		
-		VHCHECKRESULT( vhBufCreateImage(allocator, extent.width, extent.height, 1, 1,
-										depthFormat, VK_IMAGE_TILING_OPTIMAL,
-										VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, 0,
-										depthImage, depthImageAllocation) );
+		VHCHECKRESULT(vhBufCreateImage(allocator, extent.width, extent.height, 1, 1,
+									   depthFormat, VK_IMAGE_TILING_OPTIMAL,
+									   VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, 0,
+									   depthImage, depthImageAllocation));
 
-		VHCHECKRESULT( vhBufCreateImageView(device, *depthImage, depthFormat, VK_IMAGE_VIEW_TYPE_2D, 1, VK_IMAGE_ASPECT_DEPTH_BIT, depthImageView) );
+		VHCHECKRESULT(vhBufCreateImageView(device, *depthImage, depthFormat, VK_IMAGE_VIEW_TYPE_2D, 1, VK_IMAGE_ASPECT_DEPTH_BIT, depthImageView));
 
-		return vhBufTransitionImageLayout(	device, graphicsQueue, commandPool, 
-											*depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1, 1,
-											VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		return vhBufTransitionImageLayout(device, graphicsQueue, commandPool,
+										  *depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1, 1,
+										  VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 	}
-
 
 	//-------------------------------------------------------------------------------------------------------
 	/**
@@ -147,11 +147,12 @@ namespace vh {
 	* \returns VK_SUCCESS or a Vulkan error code
 	*
 	*/
-	VkResult vhBufCreateImage(	VmaAllocator allocator, uint32_t width, uint32_t height,
-							uint32_t miplevels, uint32_t arrayLayers,
-							VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, 
-							VkImageCreateFlags flags,
-							VkImage* image, VmaAllocation* allocation) {
+	VkResult vhBufCreateImage(VmaAllocator allocator, uint32_t width, uint32_t height,
+							  uint32_t miplevels, uint32_t arrayLayers,
+							  VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
+							  VkImageCreateFlags flags,
+							  VkImage *image, VmaAllocation *allocation)
+	{
 
 		VkImageCreateInfo imageInfo = {};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -175,14 +176,13 @@ namespace vh {
 		return vmaCreateImage(allocator, &imageInfo, &allocInfo, image, allocation, nullptr);
 	}
 
-
 	/**
 	* \returns whether a depth image format supports stencil information
 	*/
-	bool hasStencilComponent(VkFormat format) {
+	bool hasStencilComponent(VkFormat format)
+	{
 		return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 	}
-	
 
 	/**
 	* \brief Copy a buffer to an image (for uploading via a staging buffer)
@@ -199,7 +199,8 @@ namespace vh {
 	*
 	*/
 	VkResult vhBufCopyBufferToImage(VkDevice device, VkQueue graphicsQueue, VkCommandPool commandPool,
-								VkBuffer buffer, VkImage image, uint32_t layerCount, uint32_t width, uint32_t height) {
+									VkBuffer buffer, VkImage image, uint32_t layerCount, uint32_t width, uint32_t height)
+	{
 
 		std::vector<VkBufferImageCopy> regions;
 
@@ -211,12 +212,11 @@ namespace vh {
 		region.imageSubresource.mipLevel = 0;
 		region.imageSubresource.baseArrayLayer = 0;
 		region.imageSubresource.layerCount = layerCount;
-		region.imageOffset = { 0, 0, 0 };
+		region.imageOffset = {0, 0, 0};
 		region.imageExtent = {
 			width,
 			height,
-			1
-		};
+			1};
 		regions.push_back(region);
 
 		return vhBufCopyBufferToImage(device, graphicsQueue, commandPool, buffer, image, regions, width, height);
@@ -237,8 +237,9 @@ namespace vh {
 	*
 	*/
 	VkResult vhBufCopyBufferToImage(VkDevice device, VkQueue graphicsQueue, VkCommandPool commandPool,
-								VkBuffer buffer, VkImage image, std::vector<VkBufferImageCopy> &regions,
-								uint32_t width, uint32_t height) {
+									VkBuffer buffer, VkImage image, std::vector<VkBufferImageCopy> &regions,
+									uint32_t width, uint32_t height)
+	{
 
 		VkCommandBuffer commandBuffer = vh::vhCmdBeginSingleTimeCommands(device, commandPool);
 
@@ -257,14 +258,15 @@ namespace vh {
 	* \param[in] aspect Aspect on how to use the image (color or depth)
 	* \param[in] buffer The destination buffer
 	* \param[in] layerCount Number of image layers
-	* \param[in] width Ímage width
+	* \param[in] width ï¿½mage width
 	* \param[in] height Image height
 	* \returns VK_SUCCESS or a Vulkan error code
 	*
 	*/
 	VkResult vhBufCopyImageToBuffer(VkDevice device, VkQueue graphicsQueue, VkCommandPool commandPool,
-								VkImage image, VkImageAspectFlagBits aspect, VkBuffer buffer,
-								uint32_t layerCount, uint32_t width, uint32_t height) {
+									VkImage image, VkImageAspectFlagBits aspect, VkBuffer buffer,
+									uint32_t layerCount, uint32_t width, uint32_t height)
+	{
 
 		std::vector<VkBufferImageCopy> regions;
 
@@ -276,17 +278,15 @@ namespace vh {
 		region.imageSubresource.mipLevel = 0;
 		region.imageSubresource.baseArrayLayer = 0;
 		region.imageSubresource.layerCount = layerCount;
-		region.imageOffset = { 0, 0, 0 };
+		region.imageOffset = {0, 0, 0};
 		region.imageExtent = {
 			width,
 			height,
-			1
-		};
+			1};
 		regions.push_back(region);
 
 		return vhBufCopyImageToBuffer(device, graphicsQueue, commandPool, image, buffer, regions, width, height);
 	}
-
 
 	/**
 	* \brief Copy a VKImage to a VKBuffer
@@ -297,14 +297,15 @@ namespace vh {
 	* \param[in] image The source image
 	* \param[in] buffer The destination buffer
 	* \param[in] regions Copy regions detailing the image parts that should be copied
-	* \param[in] width Ímage width
+	* \param[in] width ï¿½mage width
 	* \param[in] height Image height
 	* \returns VK_SUCCESS or a Vulkan error code
 	*
 	*/
 	VkResult vhBufCopyImageToBuffer(VkDevice device, VkQueue graphicsQueue, VkCommandPool commandPool,
-							VkImage image, VkBuffer buffer, std::vector<VkBufferImageCopy> &regions,
-							uint32_t width, uint32_t height ) {
+									VkImage image, VkBuffer buffer, std::vector<VkBufferImageCopy> &regions,
+									uint32_t width, uint32_t height)
+	{
 
 		VkCommandBuffer commandBuffer = vh::vhCmdBeginSingleTimeCommands(device, commandPool);
 
@@ -312,8 +313,6 @@ namespace vh {
 
 		return vhCmdEndSingleTimeCommands(device, graphicsQueue, commandPool, commandBuffer);
 	}
-
-
 
 	//-------------------------------------------------------------------------------------------------------
 	//
@@ -334,19 +333,19 @@ namespace vh {
 	*
 	*/
 	VkResult vhBufTransitionImageLayout(VkDevice device, VkQueue graphicsQueue, VkCommandPool commandPool,
-		VkImage image, VkFormat format, VkImageAspectFlagBits aspect,
-		uint32_t miplevels, uint32_t layerCount,
-		VkImageLayout oldLayout, VkImageLayout newLayout) {
+										VkImage image, VkFormat format, VkImageAspectFlagBits aspect,
+										uint32_t miplevels, uint32_t layerCount,
+										VkImageLayout oldLayout, VkImageLayout newLayout)
+	{
 
 		VkCommandBuffer commandBuffer = vhCmdBeginSingleTimeCommands(device, commandPool);
 
-		VHCHECKRESULT( vhBufTransitionImageLayout(	device, graphicsQueue, commandBuffer, image,
-													format, aspect, miplevels, layerCount,
-													oldLayout, newLayout ) );
+		VHCHECKRESULT(vhBufTransitionImageLayout(device, graphicsQueue, commandBuffer, image,
+												 format, aspect, miplevels, layerCount,
+												 oldLayout, newLayout));
 
 		return vhCmdEndSingleTimeCommands(device, graphicsQueue, commandPool, commandBuffer);
 	}
-
 
 	/**
 	* \brief Transition the image layout, causes a pipeline barrier
@@ -368,7 +367,8 @@ namespace vh {
 										VkCommandBuffer commandBuffer,
 										VkImage image, VkFormat format, VkImageAspectFlagBits aspect,
 										uint32_t miplevels, uint32_t layerCount,
-										VkImageLayout oldLayout, VkImageLayout newLayout) {
+										VkImageLayout oldLayout, VkImageLayout newLayout)
+	{
 
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -379,8 +379,10 @@ namespace vh {
 		barrier.image = image;
 		barrier.subresourceRange.aspectMask = aspect;
 
-		if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT ) {
-			if (hasStencilComponent(format)) {
+		if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT)
+		{
+			if (hasStencilComponent(format))
+			{
 				barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
 			}
 		}
@@ -395,35 +397,40 @@ namespace vh {
 		barrier.srcAccessMask = 0;
 		barrier.dstAccessMask = 0;
 
-		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+		{
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+		{
 			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
 			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR && newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) {
+		else if (oldLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR && newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+		{
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = 0;
 
 			sourceStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) {
+		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+		{
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = 0;
 
 			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 			destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+		else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+		{
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
@@ -437,8 +444,7 @@ namespace vh {
 			0,
 			0, nullptr,
 			0, nullptr,
-			1, &barrier
-		);
+			1, &barrier);
 
 		return VK_SUCCESS;
 	}
@@ -464,12 +470,14 @@ namespace vh {
 	*
 	*/
 	VkResult vhBufCreateTextureImage(VkDevice device, VmaAllocator allocator, VkQueue graphicsQueue, VkCommandPool commandPool,
-								std::string basedir, std::vector<std::string> texNames, VkImageCreateFlags flags,
-								VkImage *textureImage, VmaAllocation *textureImageAllocation, VkExtent2D *extent) {
+									 std::string basedir, std::vector<std::string> texNames, VkImageCreateFlags flags,
+									 VkImage *textureImage, VmaAllocation *textureImageAllocation, VkExtent2D *extent)
+	{
 
-		struct image_data {
+		struct image_data
+		{
 			VkDeviceSize imageSize = 0;
-			stbi_uc* pixels;
+			stbi_uc *pixels;
 			int texWidth, texHeight, texChannels;
 		};
 
@@ -477,33 +485,37 @@ namespace vh {
 		imageData.resize(texNames.size());
 		VkDeviceSize imageSize = 0;
 
-		for (uint32_t i = 0; i < texNames.size(); i++) {
+		for (uint32_t i = 0; i < texNames.size(); i++)
+		{
 			std::string filename = basedir + "/" + texNames[i];
 			imageData[i].pixels = stbi_load(filename.c_str(), &imageData[i].texWidth, &imageData[i].texHeight, &imageData[i].texChannels, STBI_rgb_alpha);
 
-			if (imageData[i].pixels == nullptr) {
+			if (imageData[i].pixels == nullptr)
+			{
 				return VK_INCOMPLETE;
 			}
 
 			imageData[i].imageSize += imageData[i].texWidth * imageData[i].texHeight * 4;
 			imageSize += imageData[i].imageSize;
 
-			if (!imageData[i].pixels) {
+			if (!imageData[i].pixels)
+			{
 				return VK_INCOMPLETE;
 			}
 		}
 
 		VkBuffer stagingBuffer;
 		VmaAllocation stagingBufferAllocation;
-		VHCHECKRESULT( vhBufCreateBuffer(	allocator, imageSize, 
-											VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY,
-											&stagingBuffer, &stagingBufferAllocation ) );
+		VHCHECKRESULT(vhBufCreateBuffer(allocator, imageSize,
+										VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY,
+										&stagingBuffer, &stagingBufferAllocation));
 
-		/*gli::*/uint8_t* mappedData;
-		/*gli::*/uint8_t* memPointer;
-		VHCHECKRESULT( vmaMapMemory(allocator, stagingBufferAllocation, (void**)&mappedData) );
+		/*gli::byte*/ unsigned char *mappedData;
+		/*gli::byte*/ unsigned char *memPointer;
+		VHCHECKRESULT(vmaMapMemory(allocator, stagingBufferAllocation, (void **)&mappedData));
 		memPointer = mappedData;
-		for ( auto image : imageData ) {
+		for (auto image : imageData)
+		{
 			memcpy(memPointer, image.pixels, static_cast<size_t>(image.imageSize));
 			memPointer += image.imageSize;
 			stbi_image_free(image.pixels);
@@ -512,7 +524,7 @@ namespace vh {
 
 		// Setup buffer copy regions for each face including all of it's miplevels
 		std::vector<VkBufferImageCopy> bufferCopyRegions;
-		uint32_t offset = 0, mipLevels=1;
+		uint32_t offset = 0, mipLevels = 1;
 
 		for (uint32_t face = 0; face < imageData.size(); face++)
 		{
@@ -535,34 +547,31 @@ namespace vh {
 			}
 		}
 
+		VHCHECKRESULT(vhBufCreateImage(allocator, imageData[0].texWidth, imageData[0].texHeight, 1, (uint32_t)imageData.size(),
+									   VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
+									   VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+									   flags, textureImage, textureImageAllocation));
 
-		VHCHECKRESULT( vhBufCreateImage(allocator, imageData[0].texWidth, imageData[0].texHeight, 1, (uint32_t)imageData.size(),
-										VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
-										VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-										flags, textureImage, textureImageAllocation ) );
+		VHCHECKRESULT(vhBufTransitionImageLayout(device, graphicsQueue, commandPool, *textureImage,
+												 VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels,
+												 (uint32_t)imageData.size(),
+												 VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
 
-		VHCHECKRESULT(	vhBufTransitionImageLayout(	device, graphicsQueue, commandPool, *textureImage,
-													VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, 
-													(uint32_t)imageData.size(),
-													VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL ) );
+		VHCHECKRESULT(vhBufCopyBufferToImage(device, graphicsQueue, commandPool, stagingBuffer,
+											 *textureImage, bufferCopyRegions,
+											 static_cast<uint32_t>(imageData[0].texWidth),
+											 static_cast<uint32_t>(imageData[0].texHeight)));
 
-		VHCHECKRESULT( vhBufCopyBufferToImage(	device, graphicsQueue, commandPool, stagingBuffer,
-												*textureImage, bufferCopyRegions,
-												static_cast<uint32_t>(imageData[0].texWidth), 
-												static_cast<uint32_t>(imageData[0].texHeight) ));
-
-		VHCHECKRESULT( vhBufTransitionImageLayout(device, graphicsQueue, commandPool, *textureImage,
-												VK_FORMAT_R8G8B8A8_UNORM, 
-												VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, 
-												(uint32_t)imageData.size(),
-												VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
-												VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL ) );
-
+		VHCHECKRESULT(vhBufTransitionImageLayout(device, graphicsQueue, commandPool, *textureImage,
+												 VK_FORMAT_R8G8B8A8_UNORM,
+												 VK_IMAGE_ASPECT_COLOR_BIT, mipLevels,
+												 (uint32_t)imageData.size(),
+												 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+												 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 
 		vmaDestroyBuffer(allocator, stagingBuffer, stagingBufferAllocation);
 		return VK_SUCCESS;
 	}
-
 
 	/**
 	* \brief Create an image that is also a cubemap
@@ -676,8 +685,6 @@ namespace vh {
 		return VK_SUCCESS;
 	}*/
 
-
-
 	/**
 	* \brief Create an image sampler for samplign textures in shaders
 	*
@@ -686,7 +693,8 @@ namespace vh {
 	* \returns VK_SUCCESS or a Vulkan error code
 	*
 	*/
-	VkResult vhBufCreateTextureSampler( VkDevice device, VkSampler *textureSampler ) {
+	VkResult vhBufCreateTextureSampler(VkDevice device, VkSampler *textureSampler)
+	{
 		VkSamplerCreateInfo samplerInfo = {};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 		samplerInfo.magFilter = VK_FILTER_LINEAR;
@@ -701,10 +709,9 @@ namespace vh {
 		samplerInfo.compareEnable = VK_FALSE;
 		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-		
-		 return vkCreateSampler( device, &samplerInfo, nullptr, textureSampler);
-	}
 
+		return vkCreateSampler(device, &samplerInfo, nullptr, textureSampler);
+	}
 
 	/**
 	* \brief Create framebuffers (color + depth), one for each swap chain image
@@ -718,11 +725,12 @@ namespace vh {
 	* \returns VK_SUCCESS or a Vulkan error code
 	*
 	*/
-	VkResult vhBufCreateFramebuffers(	VkDevice device,
-									std::vector<VkImageView> imageViews, 
-									std::vector<VkImageView> depthImageViews, //should have same length!
-									VkRenderPass renderPass, VkExtent2D extent,
-									std::vector<VkFramebuffer> &frameBuffers ) {
+	VkResult vhBufCreateFramebuffers(VkDevice device,
+									 std::vector<VkImageView> imageViews,
+									 std::vector<VkImageView> depthImageViews, //should have same length!
+									 VkRenderPass renderPass, VkExtent2D extent,
+									 std::vector<VkFramebuffer> &frameBuffers)
+	{
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -732,25 +740,25 @@ namespace vh {
 		framebufferInfo.layers = 1;
 
 		uint32_t loops = (uint32_t)std::max(imageViews.size(), depthImageViews.size());
-		frameBuffers.resize( loops );
+		frameBuffers.resize(loops);
 
-		for (size_t i = 0; i < loops; i++) {
+		for (size_t i = 0; i < loops; i++)
+		{
 			std::vector<VkImageView> attachments;
-			
-			if (imageViews.size() > i && imageViews[i] != VK_NULL_HANDLE )
+
+			if (imageViews.size() > i && imageViews[i] != VK_NULL_HANDLE)
 				attachments.push_back(imageViews[i]);
 
-			if (depthImageViews.size()>i && depthImageViews[i] != VK_NULL_HANDLE)
+			if (depthImageViews.size() > i && depthImageViews[i] != VK_NULL_HANDLE)
 				attachments.push_back(depthImageViews[i]);
 
 			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 			framebufferInfo.pAttachments = attachments.data();
 
-			VHCHECKRESULT( vkCreateFramebuffer(device, &framebufferInfo, nullptr, &frameBuffers[i] ) );
+			VHCHECKRESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &frameBuffers[i]));
 		}
 		return VK_SUCCESS;
 	}
-
 
 	/**
 	* \brief Copy a swap chain image to a data buffer, after it has been rendered into
@@ -764,45 +772,47 @@ namespace vh {
 	* \param[in] aspect Color or depth
 	* \param[in] layout The layout that this image is currently and should be again after the copy
 	* \param[in] bufferData The destination buffer data
-	* \param[in] width Ímage width
+	* \param[in] width ï¿½mage width
 	* \param[in] height Image height
 	* \param[in] imageSize Size of the image in uint8_ts
 	* \returns VK_SUCCESS or a Vulkan error code
 	*
 	*/
 	VkResult vhBufCopySwapChainImageToHost(VkDevice device, VmaAllocator allocator,
-				VkQueue graphicsQueue, VkCommandPool commandPool, 
-				VkImage image, VkFormat format,
-				VkImageAspectFlagBits aspect, VkImageLayout layout,
-				/*gli::*/uint8_t *bufferData, uint32_t width, uint32_t height, uint32_t imageSize) {
+										   VkQueue graphicsQueue, VkCommandPool commandPool,
+										   VkImage image, VkFormat format,
+										   VkImageAspectFlagBits aspect, VkImageLayout layout,
+										   /*gli::byte*/ unsigned char *bufferData, uint32_t width, uint32_t height, uint32_t imageSize)
+	{
 
 		VkBuffer stagingBuffer;
 		VmaAllocation stagingBufferAllocation;
-		VHCHECKRESULT(	vhBufCreateBuffer(allocator, imageSize,
-						VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_CPU_ONLY,
-						&stagingBuffer, &stagingBufferAllocation ) );
+		VHCHECKRESULT(vhBufCreateBuffer(allocator, imageSize,
+										VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_CPU_ONLY,
+										&stagingBuffer, &stagingBufferAllocation));
 
-		VHCHECKRESULT(	vhBufTransitionImageLayout(device, graphicsQueue, commandPool,
-						image, format, aspect, 1, 1,
-						layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
+		VHCHECKRESULT(vhBufTransitionImageLayout(device, graphicsQueue, commandPool,
+												 image, format, aspect, 1, 1,
+												 layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
 
-		VHCHECKRESULT(	vhBufCopyImageToBuffer(device, graphicsQueue, commandPool,
-						image, aspect, stagingBuffer, 1, width, height ) );
+		VHCHECKRESULT(vhBufCopyImageToBuffer(device, graphicsQueue, commandPool,
+											 image, aspect, stagingBuffer, 1, width, height));
 
-		VHCHECKRESULT(	vhBufTransitionImageLayout(device, graphicsQueue, commandPool,
-						image, format, aspect, 1, 1,
-						VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, layout) );
+		VHCHECKRESULT(vhBufTransitionImageLayout(device, graphicsQueue, commandPool,
+												 image, format, aspect, 1, 1,
+												 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, layout));
 
 		void *data;
-		VHCHECKRESULT( vmaMapMemory(allocator, stagingBufferAllocation, &data ) );
+		VHCHECKRESULT(vmaMapMemory(allocator, stagingBufferAllocation, &data));
 		memcpy(bufferData, data, (size_t)imageSize);
 		vmaUnmapMemory(allocator, stagingBufferAllocation);
 
-		for (uint32_t i = 0; i < width * height; i++) {
-			/*gli::*/uint8_t r = bufferData[4 * i + 0];
-			/*gli::*/uint8_t g = bufferData[4 * i + 1];
-			/*gli::*/uint8_t b = bufferData[4 * i + 2];
-			/*gli::*/uint8_t a = bufferData[4 * i + 3];
+		for (uint32_t i = 0; i < width * height; i++)
+		{
+			/*gli::byte*/ unsigned char r = bufferData[4 * i + 0];
+			/*gli::byte*/ unsigned char g = bufferData[4 * i + 1];
+			/*gli::byte*/ unsigned char b = bufferData[4 * i + 2];
+			/*gli::byte*/ unsigned char a = bufferData[4 * i + 3];
 
 			bufferData[4 * i + 0] = b;
 			bufferData[4 * i + 1] = g;
@@ -813,7 +823,6 @@ namespace vh {
 		vmaDestroyBuffer(allocator, stagingBuffer, stagingBufferAllocation);
 		return VK_SUCCESS;
 	}
-
 
 	/**
 	* \brief Copy a swap chain image to a data buffer, after it has been rendered into
@@ -827,46 +836,44 @@ namespace vh {
 	* \param[in] aspect Color or depth
 	* \param[in] layout The layout the image is currently in
 	* \param[in] bufferData The destination buffer data
-	* \param[in] width Ímage width
+	* \param[in] width ï¿½mage width
 	* \param[in] height Image height
 	* \param[in] imageSize Size of the image in uint8_ts
 	* \returns VK_SUCCESS or a Vulkan error code
 	*
 	*/
 	VkResult vhBufCopyImageToHost(VkDevice device, VmaAllocator allocator, VkQueue graphicsQueue,
-		VkCommandPool commandPool,
-		VkImage image, VkFormat format, 
-		VkImageAspectFlagBits aspect, VkImageLayout layout,
-		/*gli::*/uint8_t *bufferData, uint32_t width, uint32_t height, uint32_t imageSize) {
+								  VkCommandPool commandPool,
+								  VkImage image, VkFormat format,
+								  VkImageAspectFlagBits aspect, VkImageLayout layout,
+								  /*gli::byte*/ unsigned char *bufferData, uint32_t width, uint32_t height, uint32_t imageSize)
+	{
 
 		VkBuffer stagingBuffer;
 		VmaAllocation stagingBufferAllocation;
-		VHCHECKRESULT(	vhBufCreateBuffer(allocator, imageSize,
-						VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_CPU_ONLY,
-						&stagingBuffer, &stagingBufferAllocation ) );
+		VHCHECKRESULT(vhBufCreateBuffer(allocator, imageSize,
+										VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_CPU_ONLY,
+										&stagingBuffer, &stagingBufferAllocation));
 
-		VHCHECKRESULT(	vhBufTransitionImageLayout(device, graphicsQueue, commandPool,
-						image, format, aspect, 1, 1,
-						layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL ) );
+		VHCHECKRESULT(vhBufTransitionImageLayout(device, graphicsQueue, commandPool,
+												 image, format, aspect, 1, 1,
+												 layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
 
-		VHCHECKRESULT(	vhBufCopyImageToBuffer(device, graphicsQueue, commandPool,
-						image, aspect, stagingBuffer, 1, width, height ) );
+		VHCHECKRESULT(vhBufCopyImageToBuffer(device, graphicsQueue, commandPool,
+											 image, aspect, stagingBuffer, 1, width, height));
 
-		VHCHECKRESULT(	vhBufTransitionImageLayout(device, graphicsQueue, commandPool,
-						image, format, aspect, 1, 1,
-						VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, layout ) );
+		VHCHECKRESULT(vhBufTransitionImageLayout(device, graphicsQueue, commandPool,
+												 image, format, aspect, 1, 1,
+												 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, layout));
 
 		void *data;
-		VHCHECKRESULT( vmaMapMemory(allocator, stagingBufferAllocation, &data) );
+		VHCHECKRESULT(vmaMapMemory(allocator, stagingBufferAllocation, &data));
 		memcpy(bufferData, data, (size_t)imageSize);
 		vmaUnmapMemory(allocator, stagingBufferAllocation);
 
 		vmaDestroyBuffer(allocator, stagingBuffer, stagingBufferAllocation);
 		return VK_SUCCESS;
 	}
-
-
-
 
 	//-------------------------------------------------------------------------------------------
 	//create main entity buffers
@@ -884,33 +891,33 @@ namespace vh {
 	* \returns VK_SUCCESS or a Vulkan error code
 	*
 	*/
-	VkResult vhBufCreateVertexBuffer(	VkDevice device, VmaAllocator allocator,
-									VkQueue graphicsQueue, VkCommandPool commandPool,
-									std::vector<vh::vhVertex> &vertices,
-									VkBuffer *vertexBuffer, VmaAllocation *vertexBufferAllocation) {
+	VkResult vhBufCreateVertexBuffer(VkDevice device, VmaAllocator allocator,
+									 VkQueue graphicsQueue, VkCommandPool commandPool,
+									 std::vector<vh::vhVertex> &vertices,
+									 VkBuffer *vertexBuffer, VmaAllocation *vertexBufferAllocation)
+	{
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
 		VkBuffer stagingBuffer;
 		VmaAllocation stagingBufferAllocation;
-		VHCHECKRESULT( vhBufCreateBuffer(	allocator, bufferSize, 
-											VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, 
-											&stagingBuffer, &stagingBufferAllocation));
+		VHCHECKRESULT(vhBufCreateBuffer(allocator, bufferSize,
+										VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY,
+										&stagingBuffer, &stagingBufferAllocation));
 
-		void* data;
-		VHCHECKRESULT( vmaMapMemory(allocator, stagingBufferAllocation, &data) );
+		void *data;
+		VHCHECKRESULT(vmaMapMemory(allocator, stagingBufferAllocation, &data));
 		memcpy(data, vertices.data(), (size_t)bufferSize);
 		vmaUnmapMemory(allocator, stagingBufferAllocation);
 
-		VHCHECKRESULT( vhBufCreateBuffer(	allocator, bufferSize, 
-											VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
-											VMA_MEMORY_USAGE_GPU_ONLY, vertexBuffer, vertexBufferAllocation ) );
+		VHCHECKRESULT(vhBufCreateBuffer(allocator, bufferSize,
+										VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+										VMA_MEMORY_USAGE_GPU_ONLY, vertexBuffer, vertexBufferAllocation));
 
-		VHCHECKRESULT( vhBufCopyBuffer(device, graphicsQueue, commandPool, stagingBuffer, *vertexBuffer, bufferSize ) );
+		VHCHECKRESULT(vhBufCopyBuffer(device, graphicsQueue, commandPool, stagingBuffer, *vertexBuffer, bufferSize));
 
 		vmaDestroyBuffer(allocator, stagingBuffer, stagingBufferAllocation);
 		return VK_SUCCESS;
 	}
-
 
 	/**
 	* \brief Create a Vulkan index buffer
@@ -926,29 +933,29 @@ namespace vh {
 	*
 	*/
 	VkResult vhBufCreateIndexBuffer(VkDevice device, VmaAllocator allocator, VkQueue graphicsQueue, VkCommandPool commandPool,
-								std::vector<uint32_t> &indices,
-								VkBuffer *indexBuffer, VmaAllocation *indexBufferAllocation) {
+									std::vector<uint32_t> &indices,
+									VkBuffer *indexBuffer, VmaAllocation *indexBufferAllocation)
+	{
 		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
 		VkBuffer stagingBuffer;
 		VmaAllocation stagingBufferAllocation;
-		VHCHECKRESULT( vhBufCreateBuffer(allocator, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, &stagingBuffer, &stagingBufferAllocation));
+		VHCHECKRESULT(vhBufCreateBuffer(allocator, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, &stagingBuffer, &stagingBufferAllocation));
 
-		void* data;
-		VHCHECKRESULT( vmaMapMemory(allocator, stagingBufferAllocation, &data ) );
+		void *data;
+		VHCHECKRESULT(vmaMapMemory(allocator, stagingBufferAllocation, &data));
 		memcpy(data, indices.data(), (size_t)bufferSize);
 		vmaUnmapMemory(allocator, stagingBufferAllocation);
 
-		VHCHECKRESULT(	vhBufCreateBuffer(allocator, bufferSize, 
-						VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, 
-						indexBuffer, indexBufferAllocation));
+		VHCHECKRESULT(vhBufCreateBuffer(allocator, bufferSize,
+										VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY,
+										indexBuffer, indexBufferAllocation));
 
-		VHCHECKRESULT( vhBufCopyBuffer(device, graphicsQueue, commandPool, stagingBuffer, *indexBuffer, bufferSize ) );
+		VHCHECKRESULT(vhBufCopyBuffer(device, graphicsQueue, commandPool, stagingBuffer, *indexBuffer, bufferSize));
 
 		vmaDestroyBuffer(allocator, stagingBuffer, stagingBufferAllocation);
 		return VK_SUCCESS;
 	}
-
 
 	/**
 	* \brief Create a UBO
@@ -961,20 +968,21 @@ namespace vh {
 	* \returns VK_SUCCESS or a Vulkan error code
 	*
 	*/
-	VkResult vhBufCreateUniformBuffers(	VmaAllocator allocator,
-									uint32_t numberBuffers, VkDeviceSize bufferSize,
-									std::vector<VkBuffer> &uniformBuffers,
-									std::vector<VmaAllocation> &uniformBuffersAllocation) {
+	VkResult vhBufCreateUniformBuffers(VmaAllocator allocator,
+									   uint32_t numberBuffers, VkDeviceSize bufferSize,
+									   std::vector<VkBuffer> &uniformBuffers,
+									   std::vector<VmaAllocation> &uniformBuffersAllocation)
+	{
 		uniformBuffers.resize(numberBuffers);
 		uniformBuffersAllocation.resize(numberBuffers);
 
-		for (size_t i = 0; i < numberBuffers; i++) {
-			VHCHECKRESULT(	vhBufCreateBuffer(allocator, bufferSize, 
-							VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, 
-							&uniformBuffers[i], &uniformBuffersAllocation[i]));
+		for (size_t i = 0; i < numberBuffers; i++)
+		{
+			VHCHECKRESULT(vhBufCreateBuffer(allocator, bufferSize,
+											VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU,
+											&uniformBuffers[i], &uniformBuffersAllocation[i]));
 		}
 		return VK_SUCCESS;
 	}
-
 
 }

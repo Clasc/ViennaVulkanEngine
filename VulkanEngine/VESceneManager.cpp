@@ -695,6 +695,8 @@ namespace ve {
 	* \brief Set the visibility of a whole subtree
 	*/
 	void VESceneManager::setVisibility2(VESceneNode *pNode, bool flag) {
+		//std::cout << "Deleting node " << pNode->getName() << "\n";
+
 		if (pNode->getNodeType() == VESceneNode::VE_NODE_TYPE_SCENEOBJECT &&
 			((VESceneObject*)pNode)->getObjectType() == VESceneObject::VE_OBJECT_TYPE_ENTITY) {
 			((VEEntity*)pNode)->m_visible = flag;

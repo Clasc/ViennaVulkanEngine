@@ -8,8 +8,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define TINYOBJLOADER_IMPLEMENTATION
-#define VMA_IMPLEMENTATION
 
+#define VMA_IMPLEMENTATION
 #include "VEInclude.h"
 
 
@@ -145,10 +145,9 @@ namespace ve {
 	std::vector<const char*> VEEngine::getValidationLayers() {
 		std::vector<const char*> validationLayers = {};
 		if (m_debug) {
-			validationLayers.push_back("VK_LAYER_KHRONOS_validation");
-			validationLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+			//validationLayers.push_back("VK_LAYER_KHRONOS_validation");
 		}
-		validationLayers.push_back("VK_LAYER_LUNARG_monitor");
+		//validationLayers.push_back("VK_LAYER_KHRONOS_monitor");
 		return validationLayers;
 	}
 
@@ -395,10 +394,11 @@ namespace ve {
 		for (uint32_t i = 0; i < m_eventlist.size(); i++) {
 			if (event.type == m_eventlist[i].type &&
 				event.subsystem == m_eventlist[i].subsystem &&
-				event.idata1 == m_eventlist[i].idata1 &&
-				event.idata2 == m_eventlist[i].idata2 &&
-				event.idata3 == m_eventlist[i].idata3 &&
-				event.idata4 == m_eventlist[i].idata4 ) {
+				//event.idata1 == m_eventlist[i].idata1 &&
+				event.idata2 == m_eventlist[i].idata2 //&&
+				//event.idata3 == m_eventlist[i].idata3 &&
+				//event.idata4 == m_eventlist[i].idata4 
+				) {
 
 				uint32_t last = (uint32_t)m_eventlist.size() - 1;
 				m_eventlist[i] = m_eventlist[last];
@@ -602,7 +602,7 @@ namespace ve {
 
 		//camera parent is used for translations
 		VESceneNode *cameraParent = getSceneManagerPointer()->createSceneNode(	"StandardCameraParent", getRoot(), 
-																				glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 10.0f, 0.0f)));
+																				glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 
 		//camera can only do yaw (parent y-axis) and pitch (local x-axis) rotations
 		VkExtent2D extent = getWindowPointer()->getExtent();
@@ -621,9 +621,9 @@ namespace ve {
 		VELight *light1 = (VEDirectionalLight *)getSceneManagerPointer()->createLight("StandardDirLight", VELight::VE_LIGHT_TYPE_DIRECTIONAL, getRoot());     //new VEDirectionalLight("StandardDirLight");
 		light1->lookAt(glm::vec3(0.0f, 20.0f, -20.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		light1->m_col_diffuse = glm::vec4(0.9f, 0.9f, 0.9f, 1.0f);
-		light1->m_col_specular = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+		light1->m_col_specular = glm::vec4(0.4f, 0.4f, 0.4f, 1.0f);
 		
-		VELight *light3 = (VEPointLight *)getSceneManagerPointer()->createLight("StandardPointLight", VELight::VE_LIGHT_TYPE_POINT, camera); //new VEPointLight("StandardPointLight");		//sphere is attached to this!
+		/*VELight *light3 = (VEPointLight *)getSceneManagerPointer()->createLight("StandardPointLight", VELight::VE_LIGHT_TYPE_POINT, camera); //new VEPointLight("StandardPointLight");		//sphere is attached to this!
 		light3->m_col_diffuse = glm::vec4(0.99f, 0.99f, 0.6f, 1.0f);
 		light3->m_col_specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		light3->m_param[0] = 200.0f;
@@ -634,6 +634,7 @@ namespace ve {
 		light2->m_col_specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		light2->m_param[0] = 200.0f;
 		light2->multiplyTransform(glm::translate(glm::vec3(5.0f, 0.0f, 0.0f)));
+		*/
 
 		registerEventListeners();	
 	}
