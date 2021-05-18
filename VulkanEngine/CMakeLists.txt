@@ -26,9 +26,6 @@ find_library(IRRKLANG_LIBRARIES
     HINTS "${CMAKE_PREFIX_PATH}../external/irrklang/bin"
 )
 
-
-message("IRRKLANG_LIBRARIES = ${IRRKLANG_LIBRARIES}\n")
-
 add_executable(
         VulkanEngine
         ${SOURCE_FILES}
