@@ -9,8 +9,7 @@ include_directories(
         ../external/nuklear
 
         #brew headers
-        /usr/local/include  
-  
+        /usr/local/include   
 )
 
 add_subdirectory(lib/ffmpeg)
@@ -20,17 +19,24 @@ link_directories(
         /usr/local/lib
 )
 
-# add the executable
-file(GLOB SOURCE_FILES CONFIGURE_DEPENDS  "*.h" "*.cpp")
+file(GLOB SOURCE_FILES CONFIGURE_DEPENDS "*.cpp")
+
+find_library(IRRKLANG_LIBRARIES
+    NAMES irrklang ikpMP3 ikpFLAC
+    HINTS "${CMAKE_PREFIX_PATH}../external/irrklang/bin"
+)
+
+
+message("IRRKLANG_LIBRARIES = ${IRRKLANG_LIBRARIES}\n")
 
 add_executable(
         VulkanEngine
         ${SOURCE_FILES}
-        ../external/threadpool/ThreadPool.h
         ../external/threadpool/ThreadPool.cpp
         )
-target_link_libraries(VulkanEngine vulkan glfw assimp ffmpeg)
 
+target_link_libraries(
+        VulkanEngine 
+        vulkan glfw assimp ffmpeg ${IRRKLANG_LIBRARIES}
+        )
 
-
-set(CMAKE_CXX_STANDARD 14)
