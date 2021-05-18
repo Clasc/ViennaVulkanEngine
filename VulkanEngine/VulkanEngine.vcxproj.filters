@@ -33,6 +33,12 @@
     <Filter Include="Header Files\VHelper">
       <UniqueIdentifier>{6a52e981-61c4-42e0-aadb-431516ce8e9d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\CustomEventlistener">
+      <UniqueIdentifier>{9a40f4e6-c5b7-41f3-b450-e713d59907d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CustomEventListener">
+      <UniqueIdentifier>{3dd244ca-a264-4eff-860e-12849181cc98}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VEEngine.h">
@@ -118,6 +124,9 @@
     </ClInclude>
     <ClInclude Include="VHFunctions.h">
       <Filter>Header Files\VHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="MyEventListenerGUI.h">
+      <Filter>Header Files\CustomEventlistener</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -222,6 +231,9 @@
     </ClCompile>
     <ClCompile Include="VHFunctions.cpp">
       <Filter>Source Files\VHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="MyEventListenerGUI.cpp">
+      <Filter>Source Files\CustomEventListener</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
