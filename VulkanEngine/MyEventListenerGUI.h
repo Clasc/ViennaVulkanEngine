@@ -15,6 +15,7 @@ namespace ve{
 
 		private:
 			inline const static std::string NAME = "MyEventListenerGUI";
+			void appendChildNodesToBuffer(char* outbuffer, VESceneNode* node,  nk_context* ctx);
 	};
 }
 #endif // !MYEVENTLISTENERGUI_H

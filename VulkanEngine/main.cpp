@@ -138,7 +138,7 @@ namespace ve {
 			VEEngine::registerEventListeners();
 
 			registerEventListener(new EventListenerCollision("Collision"), { veEvent::VE_EVENT_FRAME_STARTED });
-			registerEventListener(new EventListenerGUI("GUI"), { veEvent::VE_EVENT_DRAW_OVERLAY});
+			//registerEventListener(new EventListenerGUI("GUI"), { veEvent::VE_EVENT_DRAW_OVERLAY});
 			registerEventListener(new MyEventListenerGUI(), { veEvent::VE_EVENT_DRAW_OVERLAY});
 		};
 		
