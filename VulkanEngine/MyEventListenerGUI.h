@@ -12,10 +12,12 @@ namespace ve{
 			void onDrawOverlay(veEvent event);
 			MyEventListenerGUI();
 			~MyEventListenerGUI();
+			char* nodeTypeToString(VESceneNode::veNodeType nodetype);
 
 		private:
+			struct uiState { std::string openNode; };
+			uiState state;
 			inline const static std::string NAME = "MyEventListenerGUI";
-			void appendChildNodesToBuffer(char* outbuffer, VESceneNode* node,  nk_context* ctx);
 	};
 }
 #endif // !MYEVENTLISTENERGUI_H
