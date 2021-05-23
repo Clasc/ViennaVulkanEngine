@@ -83,15 +83,18 @@ namespace ve {
 
 		sprintf(outbuffer, xLabel.c_str());
 		nk_label(ctx, outbuffer, NK_TEXT_LEFT);
-		nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, xbuf, sizeof(xbuf) - 1, nk_filter_decimal);
+		nk_flags event = nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, xbuf, sizeof(xbuf) - 1, nk_filter_float);
+		if (event) {
+			printf("event: %d \n", event);
+		}
 
 		sprintf(outbuffer, yLabel.c_str());
 		nk_label(ctx, outbuffer, NK_TEXT_LEFT);
-		nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, ybuf, sizeof(ybuf) - 1, nk_filter_decimal);
+		event = nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, ybuf, sizeof(ybuf) - 1, nk_filter_float);
 
 		sprintf(outbuffer, zLabel.c_str());
 		nk_label(ctx, outbuffer, NK_TEXT_LEFT);
-		nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, zbuf, sizeof(zbuf) - 1, nk_filter_decimal);
+		event = nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, zbuf, sizeof(zbuf) - 1, nk_filter_float);
 		
 	}
 	
