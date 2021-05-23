@@ -13,6 +13,9 @@ namespace ve{
 			MyEventListenerGUI();
 			~MyEventListenerGUI();
 			char* nodeTypeToString(VESceneNode::veNodeType nodetype);
+			void renderLightSubMenu(nk_context* ctx, VELight* light);
+			void renderNodeSubMenu(nk_context* ctx, VESceneNode* node);
+			bool isLight(VESceneNode* node);
 
 		private:
 			struct uiState { std::string openNode; };
