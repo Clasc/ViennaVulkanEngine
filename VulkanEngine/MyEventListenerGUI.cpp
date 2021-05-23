@@ -19,12 +19,12 @@ namespace ve {
 		auto ctx = pSubrender->getContext();
 
 		if (nk_begin_titled(ctx, "Scene Nodes","Scene Nodes", nk_rect(0, 0, 600, 800), NK_WINDOW_TITLE | NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_CLOSABLE | NK_WINDOW_SCALABLE)) {
-			nk_layout_row_dynamic(ctx, 45, 1);
 			std::vector<std::string> nodeList;
 			auto root = getSceneManagerPointer()->getRootSceneNode();
 			getSceneManagerPointer()->createSceneNodeList(root, nodeList);
 
 			for (auto n : nodeList) {
+				nk_layout_row_dynamic(ctx, 45, 1);
 				sprintf(outbuffer, n.c_str());
 				
 				if (nk_button_label(ctx, outbuffer)) {
