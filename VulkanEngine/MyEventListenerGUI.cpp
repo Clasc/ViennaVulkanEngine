@@ -28,7 +28,12 @@ namespace ve {
 				sprintf(outbuffer, n.c_str());
 				
 				if (nk_button_label(ctx, outbuffer)) {
-					state.openNode = n;
+					if (state.openNode.compare(n) == 0) {
+						state.openNode = "";
+					}
+					else {
+						state.openNode = n;
+					}
 				}
 
 				if (state.openNode.compare(n) == 0) {
@@ -78,15 +83,15 @@ namespace ve {
 
 			sprintf(outbuffer, xLabel.c_str());
 			nk_label(ctx, outbuffer, NK_TEXT_LEFT);
-			nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, xbuf, sizeof(xbuf) - 1, nk_filter_default);
+			nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, xbuf, sizeof(xbuf) - 1, nk_filter_decimal);
 
 			sprintf(outbuffer, yLabel.c_str());
 			nk_label(ctx, outbuffer, NK_TEXT_LEFT);
-			nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, ybuf, sizeof(ybuf) - 1, nk_filter_default);
+			nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, ybuf, sizeof(ybuf) - 1, nk_filter_decimal);
 
 			sprintf(outbuffer, zLabel.c_str());
 			nk_label(ctx, outbuffer, NK_TEXT_LEFT);
-			nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, zbuf, sizeof(zbuf) - 1, nk_filter_default);
+			nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, zbuf, sizeof(zbuf) - 1, nk_filter_decimal);
 		}
 	}
 	
