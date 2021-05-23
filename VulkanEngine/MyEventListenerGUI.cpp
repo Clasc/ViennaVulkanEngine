@@ -20,22 +20,25 @@ namespace ve {
 
 		if (nk_begin_titled(ctx, "Scene Nodes","Scene Nodes", nk_rect(0, 0, 600, 800), NK_WINDOW_TITLE | NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_CLOSABLE | NK_WINDOW_SCALABLE)) {
 			nk_layout_row_dynamic(ctx, 45, 1);
-			
 			std::vector<std::string> nodeList;
 			auto root = getSceneManagerPointer()->getRootSceneNode();
-			
 			getSceneManagerPointer()->createSceneNodeList(root, nodeList);
 
 			for (auto n : nodeList) {
 				sprintf(outbuffer, n.c_str());
 				
 				if (nk_button_label(ctx, outbuffer)) {
-					state.openNode= n;
+					state.openNode = n;
 				}
 
 				if (state.openNode.compare(n) == 0) {
 					auto node = getSceneManagerPointer()->getSceneNode(n);
+					if (node == nullptr) {
+						continue;
+					}
 					sprintf(outbuffer, nodeTypeToString(node->getNodeType()));
+					nk_label(ctx, outbuffer, NK_TEXT_CENTERED);
+
 					if (isLight(node)) {
 						renderLightSubMenu(ctx, (VELight*)node);
 					}
@@ -45,9 +48,7 @@ namespace ve {
 				}
 			}
 		}
-		
 		nk_end(ctx);
-
 	}
 
 	char* MyEventListenerGUI::nodeTypeToString(VESceneNode::veNodeType nodetype) {
@@ -64,10 +65,8 @@ namespace ve {
 
 	void MyEventListenerGUI::renderNodeSubMenu(nk_context* ctx, VESceneNode* node) {
 		char outbuffer[200];
-		nk_layout_row_dynamic(ctx, 45, 1);
+		nk_layout_row_dynamic(ctx, 45, 6);
 		{
-			nk_label(ctx, outbuffer, NK_TEXT_LEFT);
-
 			auto pos = node->getPosition();
 			char xbuf[20];
 			char ybuf[20];
