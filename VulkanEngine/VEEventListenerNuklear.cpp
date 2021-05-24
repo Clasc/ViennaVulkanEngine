@@ -27,6 +27,7 @@ namespace ve {
 			NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
 			NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE))
 		{
+			
 
 			nk_layout_row_static(ctx, 30, 80, 1);
 			if (nk_button_label(ctx, "button"))

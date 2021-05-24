@@ -2,7 +2,10 @@
 namespace ve {
 	MyEventListenerGUI::MyEventListenerGUI():VEEventListener(NAME)
 	{
-		state = { "" };
+		state = {
+			"" ,
+			-1
+		};
 	}
 
 	MyEventListenerGUI::~MyEventListenerGUI()
@@ -15,10 +18,13 @@ namespace ve {
 		if (pSubrender == nullptr) {
 			return;
 		}
-		char outbuffer[200];
+
 		auto ctx = pSubrender->getContext();
 
 		if (nk_begin_titled(ctx, "Scene Nodes","Scene Nodes", nk_rect(0, 0, 600, 800), NK_WINDOW_TITLE | NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_CLOSABLE | NK_WINDOW_SCALABLE)) {
+			nk_input_unicode(ctx, state.pressed);
+			state.pressed = -1;
+
 			std::vector<std::string> nodeList;
 			auto root = getSceneManagerPointer()->getRootSceneNode();
 			getSceneManagerPointer()->createSceneNodeList(root, nodeList);
@@ -56,6 +62,13 @@ namespace ve {
 		nk_end(ctx);
 	}
 
+	bool  MyEventListenerGUI::onKeyboard(veEvent event) {
+		if (event.idata3 == GLFW_PRESS) {
+			state.pressed = event.idata1;
+		}
+		return true;
+	}
+
 	char* MyEventListenerGUI::nodeTypeToString(VESceneNode::veNodeType nodetype) {
 		switch (nodetype) {
 		case VESceneNode::veNodeType::VE_NODE_TYPE_SCENENODE: {
@@ -73,29 +86,40 @@ namespace ve {
 		nk_layout_row_dynamic(ctx, 45, 6);
 
 		auto pos = node->getPosition();
-		char xbuf[20];
-		char ybuf[20];
-		char zbuf[20];
 
-		auto xLabel = "x: " + std::to_string(pos.x);
-		auto yLabel = "y: " + std::to_string(pos.y);
-		auto zLabel = "z: " + std::to_string(pos.z);
-
-		sprintf(outbuffer, xLabel.c_str());
+		sprintf(outbuffer, "x:");
 		nk_label(ctx, outbuffer, NK_TEXT_LEFT);
-		nk_flags event = nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, xbuf, sizeof(xbuf) - 1, nk_filter_float);
-		if (event) {
-			printf("event: %d \n", event);
+		auto event = nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, buffers.x, sizeof(buffers.x) - 1, nk_filter_ascii);
+		if (event & NK_EDIT_INACTIVE) {
+			strcpy(buffers.x, std::to_string(node->getPosition().x).c_str());
+		}
+		if (event & NK_EDIT_ACTIVE) {
+			pos.x = (float)strtod(buffers.x, NULL);
+			node->setPosition(pos);
+		}
+		
+
+		sprintf(outbuffer, "y:");
+		nk_label(ctx, outbuffer, NK_TEXT_LEFT);
+		event = nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, buffers.y, sizeof(buffers.y) - 1, nk_filter_ascii);
+		if (event & NK_EDIT_INACTIVE) {
+			strcpy(buffers.y, std::to_string(node->getPosition().y).c_str());
+		}
+		if (event & NK_EDIT_ACTIVE) {
+			pos.y = (float)strtod(buffers.y, NULL);
+			node->setPosition(pos);
 		}
 
-		sprintf(outbuffer, yLabel.c_str());
+		sprintf(outbuffer, "z:");
 		nk_label(ctx, outbuffer, NK_TEXT_LEFT);
-		event = nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, ybuf, sizeof(ybuf) - 1, nk_filter_float);
-
-		sprintf(outbuffer, zLabel.c_str());
-		nk_label(ctx, outbuffer, NK_TEXT_LEFT);
-		event = nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, zbuf, sizeof(zbuf) - 1, nk_filter_float);
-		
+		event = nk_edit_string_zero_terminated(ctx, NK_EDIT_FIELD, buffers.z, sizeof(buffers.z) - 1, nk_filter_ascii);
+		if (event & NK_EDIT_INACTIVE) {
+			strcpy(buffers.z, std::to_string(node->getPosition().z).c_str());
+		}
+		if (event & NK_EDIT_ACTIVE) {
+			pos.z = (float)strtod(buffers.z, NULL);
+			node->setPosition(pos);
+		}
 	}
 	
 	void MyEventListenerGUI::renderLightSubMenu(nk_context* ctx, VELight* light) {
