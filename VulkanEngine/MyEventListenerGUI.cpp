@@ -128,8 +128,27 @@ namespace ve {
 		
 		auto originalCol = light->m_col_ambient;
 		nk_color lightColor = { originalCol.r * 255,originalCol.g * 255, originalCol.b * 255, originalCol.a * 255, };
+		
 		nk_label(ctx, outbuffer, NK_TEXT_LEFT);
-		nk_label(ctx, "Ambient Light Color", NK_TEXT_LEFT);
+		nk_label(ctx, "Ambient Light Color", NK_TEXT_CENTERED);
+		
+		nk_layout_row_dynamic(ctx, 45, 4);
+		auto r = "r: " + std::to_string(originalCol.r);
+		sprintf(outbuffer, r.c_str());
+		nk_label(ctx, outbuffer, NK_TEXT_CENTERED);
+		
+		auto g = "g: " + std::to_string(originalCol.g);
+		sprintf(outbuffer, g.c_str());
+		nk_label(ctx, outbuffer, NK_TEXT_CENTERED);
+
+		auto b = "b: " + std::to_string(originalCol.b);
+		sprintf(outbuffer, b.c_str());
+		nk_label(ctx, outbuffer, NK_TEXT_CENTERED);
+		
+		auto a = "a: " + std::to_string(originalCol.a);
+		sprintf(outbuffer, a.c_str());
+		nk_label(ctx, outbuffer, NK_TEXT_CENTERED);
+		
 		nk_layout_row_dynamic(ctx, 250, 1);
 		nk_color_pick(ctx, &lightColor, NK_RGBA);
 
