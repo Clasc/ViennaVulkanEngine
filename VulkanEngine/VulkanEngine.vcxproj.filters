@@ -33,6 +33,18 @@
     <Filter Include="Header Files\VHelper">
       <UniqueIdentifier>{6a52e981-61c4-42e0-aadb-431516ce8e9d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Game">
+      <UniqueIdentifier>{f086d3a2-5edc-4744-93a0-d28f4550952f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game\Const">
+      <UniqueIdentifier>{c0c93b5f-c4b8-4a34-96b6-aa660c9a639e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game\EventListeners">
+      <UniqueIdentifier>{7ad1cf18-0b79-40d9-bd88-3e61345a5f69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game\Services">
+      <UniqueIdentifier>{df397efb-ca31-4e1b-b46e-4561c9bf60a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VEEngine.h">
@@ -118,6 +130,39 @@
     </ClInclude>
     <ClInclude Include="VHFunctions.h">
       <Filter>Header Files\VHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityName.h">
+      <Filter>Header Files\Game\Const</Filter>
+    </ClInclude>
+    <ClInclude Include="StreamerListener.h">
+      <Filter>Header Files\Game\EventListeners</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionListener.h">
+      <Filter>Header Files\Game\EventListeners</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerController.h">
+      <Filter>Header Files\Game\EventListeners</Filter>
+    </ClInclude>
+    <ClInclude Include="RecorderListener.h">
+      <Filter>Header Files\Game\EventListeners</Filter>
+    </ClInclude>
+    <ClInclude Include="Encoder.h">
+      <Filter>Header Files\Game\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Streamer.h">
+      <Filter>Header Files\Game\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="UDPSend.h">
+      <Filter>Header Files\Game\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelManager.h">
+      <Filter>Header Files\Game\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="GameIncludes.h">
+      <Filter>Header Files\Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

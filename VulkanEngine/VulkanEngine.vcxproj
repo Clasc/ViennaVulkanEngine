@@ -176,6 +176,17 @@
     <ClInclude Include="..\external\threadpool\ThreadPool.h" />
     <ClInclude Include="CLInclude.h" />
     <ClInclude Include="CLShape.h" />
+    <ClInclude Include="CollisionListener.h" />
+    <ClInclude Include="Encoder.h" />
+    <ClInclude Include="EntityName.h" />
+    <ClInclude Include="GameEngine.h" />
+    <ClInclude Include="GameIncludes.h" />
+    <ClInclude Include="LevelManager.h" />
+    <ClInclude Include="PlayerController.h" />
+    <ClInclude Include="RecorderListener.h" />
+    <ClInclude Include="Streamer.h" />
+    <ClInclude Include="StreamerListener.h" />
+    <ClInclude Include="UDPSend.h" />
     <ClInclude Include="VEEventListenerNuklear.h" />
     <ClInclude Include="VEEventListenerNuklearDebug.h" />
     <ClInclude Include="VEMaterial.h" />
