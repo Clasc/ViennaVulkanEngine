@@ -191,7 +191,8 @@ int main() {
 	//mve.loadLevel(1);
 	//mve.run();
 
-	game::GameEngine gameEngine = game::GameEngine(false);
+	// To make it run, copy ffmpeg/bin/*.dll to output folder!
+	game::GameEngine gameEngine = game::GameEngine(true);
 	gameEngine.initEngine();
 	gameEngine.loadLevel(1);
 	gameEngine.run();

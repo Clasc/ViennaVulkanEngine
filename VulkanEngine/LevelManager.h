@@ -62,7 +62,7 @@ namespace game
 
     void LevelManager::loadFruit(VESceneNode *pScene)
     {
-        auto model = getSceneManagerPointer()->loadModel(EntityName::FruitModel1, "game/Assets/Models/Starfruit", "Starfruit.obj");
+        auto model = getSceneManagerPointer()->loadModel(EntityName::FruitModel1, "Assets/Models/Starfruit", "Starfruit.obj");
         auto fruit = getSceneManagerPointer()->createSceneNode(EntityName::Fruit1, pScene);
         model->multiplyTransform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1f)));
         fruit->multiplyTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 30.0f, 50.0f)));
@@ -71,7 +71,7 @@ namespace game
 
     void LevelManager::loadTree2(VESceneNode *pScene)
     {
-        auto model = getSceneManagerPointer()->loadModel(EntityName::TreeModel2, "game/Assets/Models/Tree2", "lowpolytree.obj");
+        auto model = getSceneManagerPointer()->loadModel(EntityName::TreeModel2, "Assets/Models/Tree2", "lowpolytree.obj");
         auto tree = getSceneManagerPointer()->createSceneNode(EntityName::Tree2, pScene);
         model->multiplyTransform(glm::scale(glm::mat4(1.0f), glm::vec3(10.0f)));
         model->multiplyTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 20.0f, 0.0f)));
@@ -81,7 +81,7 @@ namespace game
 
     void LevelManager::loadTree(VESceneNode *pScene)
     {
-        auto model = getSceneManagerPointer()->loadModel(EntityName::TreeModel1, "game/Assets/Models/Tree", "low-poly-tree.obj");
+        auto model = getSceneManagerPointer()->loadModel(EntityName::TreeModel1, "Assets/Models/Tree", "low-poly-tree.obj");
         auto tree = getSceneManagerPointer()->createSceneNode(EntityName::Tree1, pScene);
         model->multiplyTransform(glm::scale(glm::mat4(1.0f), glm::vec3(10.0f)));
         tree->multiplyTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 100.0f)));
@@ -90,7 +90,7 @@ namespace game
 
     void LevelManager::loadPlayer()
     {
-        auto model = getSceneManagerPointer()->loadModel(EntityName::PlayerModel, "game/Assets/Models/Bird", "bird.obj");
+        auto model = getSceneManagerPointer()->loadModel(EntityName::PlayerModel, "Assets/Models/Bird", "bird.obj");
         auto camera = getSceneManagerPointer()->getCamera();
         auto player = getSceneManagerPointer()->getSceneNode(EntityName::Player);
 
