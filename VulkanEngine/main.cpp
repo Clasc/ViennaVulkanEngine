@@ -7,6 +7,7 @@
 
 
 #include "VEInclude.h"
+#include "GameEngine.h"
 
 
 
@@ -184,11 +185,16 @@ using namespace ve;
 int main() {
 	bool debug = true;
 
-	MyVulkanEngine mve(debug);	//enable or disable debugging (=callback, validation layers)
+	//MyVulkanEngine mve(debug);	//enable or disable debugging (=callback, validation layers)
 
-	mve.initEngine();
-	mve.loadLevel(1);
-	mve.run();
+	//mve.initEngine();
+	//mve.loadLevel(1);
+	//mve.run();
+
+	game::GameEngine gameEngine = game::GameEngine(false);
+	gameEngine.initEngine();
+	gameEngine.loadLevel(1);
+	gameEngine.run();
 
 	return 0;
 }

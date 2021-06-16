@@ -6,20 +6,20 @@
  *  Copyright 2010 __MyCompanyName__. All rights reserved.
  *
  */
-
-extern "C"
-{
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <string.h>
-}
+#include <stdio.h>
 #include <iostream>
+#include <ctime>
+
+ // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
+#pragma comment (lib, "Ws2_32.lib")
+#pragma comment (lib, "Mswsock.lib")
+#pragma comment (lib, "AdvApi32.lib")
+
 
 #define min(x, y) ((x) <= (y) ? (x) : (y))
 #define max(x, y) ((x) >= (y) ? (x) : (y))
@@ -39,7 +39,7 @@ public:
     ~UDPSend()
     {
         if (sock)
-            close(sock);
+            closesocket(sock);
     };
     void init(char *address, int port);
     int send(char *buffer, int len);
@@ -64,7 +64,7 @@ void UDPSend::init(char *address, int port)
 {
     if (sock)
     {
-        close(sock);
+		closesocket(sock);
     }
 
     sock = socket(PF_INET, SOCK_DGRAM, 0);
@@ -124,7 +124,7 @@ int UDPSend::send(char *buffer, int len)
 
 void UDPSend::closeSock()
 {
-    close(sock);
+	closesocket(sock);
     sock = 0;
 }
 #endif

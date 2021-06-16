@@ -20,7 +20,7 @@ namespace game
         static const AVCodecID CODEC = AV_CODEC_ID_MPEG2VIDEO;
         AVCodecContext *m_avcodec_context;
         SwsContext *m_img_convert_ctx;
-        AVCodec *m_codec;
+        AVCodec const *m_codec;
 
     public:
         Encoder();

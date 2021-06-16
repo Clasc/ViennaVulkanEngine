@@ -164,6 +164,9 @@
     <ClInclude Include="GameIncludes.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VEEngine.cpp">
@@ -273,5 +276,8 @@
     <None Include="VHFunctions.inl">
       <Filter>Header Files\VHelper</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VulkanEngine.rc" />
   </ItemGroup>
 </Project>
