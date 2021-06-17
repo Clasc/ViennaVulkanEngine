@@ -52,7 +52,8 @@ namespace game
         auto yuvFrame = m_encoder.convertRgbToYuv(frame);
 
         m_encoder.encode(yuvFrame, [&](AVPacket *pkt) {
-            fprintf(stderr, "sending encoded frame...\n");
+            printf("sending encoded frame...\n\n");
+			printf("packet size: %d \n", pkt->size);
             m_udpSender.init(ADDRESS, PORT);
             m_udpSender.send((char *)pkt->data, pkt->size);
             m_udpSender.closeSock();
