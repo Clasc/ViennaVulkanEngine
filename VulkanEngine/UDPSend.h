@@ -6,14 +6,16 @@
  *  Copyright 2010 __MyCompanyName__. All rights reserved.
  *
  */
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <iostream>
-#include <ctime>
+
 
  // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
 #pragma comment (lib, "Ws2_32.lib")
@@ -24,6 +26,16 @@
 #define min(x, y) ((x) <= (y) ? (x) : (y))
 #define max(x, y) ((x) >= (y) ? (x) : (y))
 
+#if !defined(_WIN32)
+#define SOCKET int
+#endif
+
+#if defined(_WIN32)
+#define ISVALIDSOCKET(s) ((s) != INVALID_SOCKET)
+#else
+#define ISVALIDSOCKET(s) ((s) >= 0)
+#endif
+
 #ifndef UDPSEND_H
 #define UDPSEND_H
 
@@ -31,19 +43,24 @@ class UDPSend
 {
 
 public:
-    int sock;
+    SOCKET sock;
     struct sockaddr_in addr;
     unsigned long packetnum;
 
-    UDPSend();
+	UDPSend();
     ~UDPSend()
     {
-        if (sock)
+		if (sock) 
+		{
             closesocket(sock);
+		}
+		WSACleanup();
     };
+
     void init(char *address, int port);
     int send(char *buffer, int len);
     void closeSock();
+	char sendbuffer[65000];
 };
 
 typedef struct RTHeader
@@ -58,25 +75,37 @@ UDPSend::UDPSend()
 {
     packetnum = 0;
     sock = 0;
+	WSADATA wsaData;
+	auto wVersionRequested = MAKEWORD(2, 2);
+	auto err = WSAStartup(wVersionRequested, &wsaData);
+
+	if (err != 0)
+	{
+		printf("WSAStartup failed with error: %d\n", err);
+		return;
+	}
 }
 
 void UDPSend::init(char *address, int port)
 {
+	
     if (sock)
     {
 		closesocket(sock);
     }
 
-    sock = socket(PF_INET, SOCK_DGRAM, 0);
+    sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr(address);
     addr.sin_port = htons(port);
+	
+	if (!ISVALIDSOCKET(sock)) {
+		fprintf(stderr, "socket() failed!\n");
+	}
 }
 
 int UDPSend::send(char *buffer, int len)
 {
-    char sendbuffer[65000];
-
     packetnum++;
 
     if (len > 65000)
@@ -94,8 +123,11 @@ int UDPSend::send(char *buffer, int len)
     header.fragnum = 1;
 
     int left = len - header.fragments * maxpacketsize;
-    if (left > 0)
+	
+	if (left > 0) 
+	{
         header.fragments++;
+	}
 
     int ret, bytes = 0;
     for (int i = 0; i < header.fragments; i++)
@@ -107,7 +139,7 @@ int UDPSend::send(char *buffer, int len)
 
         if (ret == -1)
         {
-            std::cout << strerror(errno) << sock << std::endl;
+            std::cout << strerror(errno) << " socket: " << sock << std::endl;
             return ret;
         }
 
