@@ -29,7 +29,6 @@ namespace game
         void setupContexts(size_t width, size_t height);
         void saveImageBufferToFile(const uint8_t *dataImage, FILE *f, int position);
         AVFrame *getFrameFromData(const uint8_t *dataImage, int position);
-        void encodeFrameAndSend(AVFrame *frame);
         AVFrame *convertRgbToYuv(AVFrame *frame);
         void cleanupContexts();
     };
