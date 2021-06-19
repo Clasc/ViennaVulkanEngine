@@ -35,6 +35,7 @@ namespace game
     {
         if (!isSetup)
         {
+			m_udpSender.init(ADDRESS, PORT);
             m_encoder.setupContexts(width, height);
             isSetup = true;
         }
@@ -44,6 +45,7 @@ namespace game
     {
         m_encoder.cleanupContexts();
         isSetup = false;
+		m_udpSender.closeSock();
     }
 
     void Streamer::encodeAndSend(const uint8_t *dataImage, int width, int height, int position)
@@ -54,9 +56,7 @@ namespace game
         m_encoder.encode(yuvFrame, [&](AVPacket *pkt) {
             printf("sending encoded frame...\n\n");
 			printf("packet size: %d \n", pkt->size);
-            m_udpSender.init(ADDRESS, PORT);
             m_udpSender.send((char *)pkt->data, pkt->size);
-            m_udpSender.closeSock();
         });
 
         av_frame_free(&frame);
